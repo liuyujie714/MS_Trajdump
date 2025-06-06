@@ -133,9 +133,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="FileSerializer.h" />
+    <ClInclude Include="MSTrjParser.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MSTrj2GRO.cpp" />
+    <ClCompile Include="MSTrjParser.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
