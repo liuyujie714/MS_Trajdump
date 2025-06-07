@@ -1,5 +1,6 @@
 #include "MSTrjParser.h"
 
+#include <algorithm>
 #include <array>
 #include <fstream>
 #include <map>
