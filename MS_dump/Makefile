@@ -1,5 +1,5 @@
 CC  = g++ -static -fPIC -std=c++17
-CFLAGS = -O3 -I. -I./eigen-3.3.9 -I./eigen-3.3.9/Eigen
+CFLAGS = -O3 -I. -I./eigen-3.3.9
 
 SRC = $(wildcard *.cpp)
 OBJ = $(SRC:.cpp=.o)
