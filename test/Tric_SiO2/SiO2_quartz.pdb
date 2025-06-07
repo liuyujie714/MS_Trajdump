@@ -1,0 +1,81 @@
+REMARK   Materials Studio PDB file
+REMARK   Created:  Fri Jun 06 18:49:44 +0800 2025
+CRYST1    9.826    9.826    5.405  90.00  90.00 120.00 P1
+ORIGX1      1.000000  0.000000  0.000000        0.00000
+ORIGX2      0.000000  1.000000  0.000000        0.00000
+ORIGX3      0.000000  0.000000  1.000000        0.00000
+SCALE1      0.101771  0.058757  0.000000        0.00000   
+SCALE2      0.000000  0.117515  0.000000        0.00000   
+SCALE3      0.000000  0.000000  0.185007        0.00000   
+ATOM      1  OX1 MOL     2       1.369   1.167   1.160  1.00  0.00           O    
+ATOM      2  OX1 MOL     2       3.218   0.602   2.962  1.00  0.00           O    
+ATOM      3  OX1 MOL     2       2.782   2.486   4.764  1.00  0.00           O    
+ATOM      4  OX1 MOL     2       0.326   1.769   4.245  1.00  0.00           O    
+ATOM      5  OX1 MOL     2      -1.087   3.088   2.443  1.00  0.00           O    
+ATOM      6  OX1 MOL     2       0.761   3.652   0.642  1.00  0.00           O    
+ATOM      7 SI1  MOL     2       2.273   0.000   1.802  1.00  0.00          Si    
+ATOM      8 SI1  MOL     2      -1.137   1.969   3.603  1.00  0.00          Si    
+ATOM      9 SI1  MOL     2       1.320   2.286  -0.000  1.00  0.00          Si    
+ATOM     10  OX1 MOL     2       6.282   1.167   1.160  1.00  0.00           O    
+ATOM     11  OX1 MOL     2       8.131   0.602   2.962  1.00  0.00           O    
+ATOM     12  OX1 MOL     2       7.695   2.486   4.764  1.00  0.00           O    
+ATOM     13  OX1 MOL     2       5.239   1.769   4.245  1.00  0.00           O    
+ATOM     14  OX1 MOL     2       3.826   3.088   2.443  1.00  0.00           O    
+ATOM     15  OX1 MOL     2       5.674   3.652   0.642  1.00  0.00           O    
+ATOM     16 SI1  MOL     2       7.186  -0.000   1.802  1.00  0.00          Si    
+ATOM     17 SI1  MOL     2       3.776   1.969   3.603  1.00  0.00          Si    
+ATOM     18 SI1  MOL     2       6.233   2.286   0.000  1.00  0.00          Si    
+ATOM     19  OX1 MOL     2      -1.087   5.422   1.160  1.00  0.00           O    
+ATOM     20  OX1 MOL     2       0.761   4.857   2.962  1.00  0.00           O    
+ATOM     21  OX1 MOL     2       0.326   6.740   4.764  1.00  0.00           O    
+ATOM     22  OX1 MOL     2      -2.131   6.024   4.245  1.00  0.00           O    
+ATOM     23  OX1 MOL     2      -3.544   7.343   2.443  1.00  0.00           O    
+ATOM     24  OX1 MOL     2      -1.695   7.907   0.642  1.00  0.00           O    
+ATOM     25 SI1  MOL     2      -0.183   4.255   1.802  1.00  0.00          Si    
+ATOM     26 SI1  MOL     2      -3.593   6.223   3.603  1.00  0.00          Si    
+ATOM     27 SI1  MOL     2      -1.137   6.541  -0.000  1.00  0.00          Si    
+ATOM     28  OX1 MOL     2       3.826   5.422   1.160  1.00  0.00           O    
+ATOM     29  OX1 MOL     2       5.674   4.857   2.962  1.00  0.00           O    
+ATOM     30  OX1 MOL     2       5.239   6.740   4.764  1.00  0.00           O    
+ATOM     31  OX1 MOL     2       2.782   6.024   4.245  1.00  0.00           O    
+ATOM     32  OX1 MOL     2       1.369   7.343   2.443  1.00  0.00           O    
+ATOM     33  OX1 MOL     2       3.218   7.907   0.642  1.00  0.00           O    
+ATOM     34 SI1  MOL     2       4.730   4.255   1.802  1.00  0.00          Si    
+ATOM     35 SI1  MOL     2       1.320   6.223   3.603  1.00  0.00          Si    
+ATOM     36 SI1  MOL     2       3.776   6.541  -0.000  1.00  0.00          Si    
+TER      37 
+CONECT    1   29   34
+CONECT    2    8   10
+CONECT    3   18    8
+CONECT    4   18
+CONECT    5    9
+CONECT    6   26    9
+CONECT    7   10   26
+CONECT    8    2    3
+CONECT    9    5    6
+CONECT   10    2    7
+CONECT   11   17   19
+CONECT   12   17
+CONECT   14   18
+CONECT   15   35   18
+CONECT   16   19   35
+CONECT   17   11   12
+CONECT   18    3    4   14   15
+CONECT   19   11   16
+CONECT   20   26   28
+CONECT   21   36   26
+CONECT   22   36
+CONECT   23   27
+CONECT   24   27
+CONECT   25   28
+CONECT   26    6    7   20   21
+CONECT   27   23   24
+CONECT   28   20   25
+CONECT   29   35    1
+CONECT   30   35
+CONECT   32   36
+CONECT   33   36
+CONECT   34    1
+CONECT   35   15   16   29   30
+CONECT   36   21   22   32   33
+END

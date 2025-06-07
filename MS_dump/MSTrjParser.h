@@ -8,7 +8,7 @@
 #include <vector>
 #include <math.h>
 
-#include <Eigen/Dense>
+#include "Eigen/Dense"
 
 constexpr int LENSTR  = 80; //! the character length of Comment
 constexpr int version = 28; //! control how to deal with char bytes

@@ -139,7 +139,6 @@ void read_vector(const std::unique_ptr<FileSerializer>& p, std::vector<Vec>& vec
     }
     //! skip 8 bytes
     p->fseek_(8L, SEEK_CUR);
-    ;
 
     for (int j = 0; j < param.moved_natoms; j++)
     {
