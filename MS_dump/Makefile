@@ -11,7 +11,7 @@ $(EXE): $(OBJ)
 	$(CC) $(CFLAGS) $^ -o $@
 
 %.o: %.cpp
-	$(CC) -c $< $(CFLAGS) -o $@ 
+	$(CC) $(CFLAGS) -c $< -o $@ 
 
 clean:
 	rm -f $(EXE) *.o
