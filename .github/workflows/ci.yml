@@ -119,6 +119,6 @@ jobs:
       - name: Package Linux and Windows artifact to release
         run: |
           ls -alt
-          tar -czvf ${{env.OUTPUT_TAR}} MS_dump MS_dump.exe
+          tar -czvf ${{env.OUTPUT_TAR}} ./MS_dump_Linux/MS_dump  ./MS_dump_Windows/MS_dump.exe
           github-release upload --tag ${{ env.RELEASE_TAG }} --replace --name ${{env.OUTPUT_TAR}} --file ${{env.OUTPUT_TAR}}
 
