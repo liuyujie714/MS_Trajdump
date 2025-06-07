@@ -112,12 +112,12 @@ jobs:
           github-release ${{env.RELEASE_COMMAND}} --tag ${{ env.RELEASE_TAG }} --name "Latest Bleed Release" --description "$DESCRIPTION" --pre-release
       
       - name: Download Ubuntu artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: MS_dump_Linux
 
       - name: Download Windows artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: MS_dump_Windows
 
