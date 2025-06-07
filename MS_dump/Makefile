@@ -1,23 +1,19 @@
 CC  = g++ -static -fPIC -std=c++17
-src = $(wildcard *.c *.cpp)
-OBJ = $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(src)))
+CFLAGS = -O3 -I. -I./eigen-3.3.9
 
-CLFAGS = -O3 -I.
+SRC = $(wildcard *.cpp)
+OBJ = $(SRC:.cpp=.o)
 EXE = MS_dump
 
-all:$(EXE)
+all: $(EXE)
 
-$(EXE):$(OBJ)
-	$(CC) $(CLFAGS) $(OBJ) -o $(EXE) 
+$(EXE): $(OBJ)
+	$(CC) $(CFLAGS) $^ -o $@
 
-%.o:%.c
-	$(CC) -c $< -o $@ $(CLFAGS) 
-
-%.o:%.cpp
-	$(CC) -c $< -o $@ $(CLFAGS) 
+%.o: %.cpp
+	$(CC) -c $< -o $@ $(CFLAGS)
 
 clean:
 	rm -f $(EXE) *.o
 
 .PHONY: clean all
-

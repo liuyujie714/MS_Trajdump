@@ -6,6 +6,9 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <math.h>
+
+#include <Eigen/Dense>
 
 constexpr int LENSTR  = 80; //! the character length of Comment
 constexpr int version = 28; //! control how to deal with char bytes
@@ -18,6 +21,13 @@ struct Vec
     Vec() = default;
 
     Vec(double x0, double y0, double z0) : x(x0), y(y0), z(z0) {}
+
+    double norm() const { return sqrt(x * x + y * y + z * z);}
+
+    double operator*(const Vec& rhs) const
+    {
+        return x * rhs.x + y * rhs.y + z * rhs.z;
+    }
 
     double x, y, z;
 };
@@ -183,13 +193,32 @@ struct PDBInfo
     bool has_file = false;
 };
 
+//! CRYST1
+struct PDBCrystal
+{
+    PDBCrystal() : A(0), B(0), C(0), alpha(0), beta(0), gamma(0) {}
+
+    void print() const {
+        printf("CRYST1 %f %f %f %f %f %f\n", A, B, C, alpha, beta, gamma);
+    }
+
+    double A, B, C;
+    double alpha, beta, gamma;
+};
+
+using matrix = Eigen::Matrix3d;
+
 struct Frame
 {
     std::vector<Vec> coords;
     std::vector<Vec> velocities;
     std::vector<Vec> forces;
-    //! The lower triangular simulation box
-    std::array<std::array<double, 3>, 3> box;
+    //! original Defcell from .trj
+    matrix defcell;
+    //! The converted lower triangular simulation box (same as .gro)
+    matrix box;
+    //! pdb crystal
+    PDBCrystal crystal;
 
     //! energy information
     double ener[EnergyType::NR_Ene];
@@ -208,7 +237,8 @@ struct Frame
         coords.clear();
         velocities.clear();
         forces.clear();
-        box.fill({0, 0, 0});
+        defcell.setZero();
+        box.setZero();
         has_velocity = has_force = false;
     }
 };
