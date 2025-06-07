@@ -24,7 +24,7 @@ jobs:
 
       - name: Build the project
         run: |
-          make -j2
+          make -j4
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -54,7 +54,7 @@ jobs:
 
       - name: Build the project
         run: |
-          make -j2
+          make -j4
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
