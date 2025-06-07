@@ -2,8 +2,11 @@
 
 
 
-
 # Usage
+
+Firstly find molecular dynamics trajectory file created by `Material Studio`, hidden file `.trj` is located in same folder that of `.xtd`
+
+
 
 * Linux
 
@@ -33,4 +36,6 @@ Output `MS_traj.xyz`, the comment line has box information that can be read by `
 > ```
 > .\MS_dump.exe system.trj
 > ```
+
+
 
