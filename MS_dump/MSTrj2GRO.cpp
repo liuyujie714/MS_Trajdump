@@ -1,23 +1,23 @@
 ﻿/* A tool to read Material Studio .trj file and export coords
-* Written by Yujie Liu  - 2025.06.07
-* 
-* Update: 
-*   2025.06.08 - Support triclinic system, defcell and coords must be converted
-* 
-* TODO: 
-*   Output temp, pressure, energy, etc. (easy)
-*
-* All times are in ps.
-* All energies are in kcal mol-1.
-* All pressure and stress values are in GPa.
-* All volumes are in Å3.
-* All coordinates are in Å.
-* All velocities are in Å ps-1.
-* All forces are in kcal mol-1 Å-1.
-* All temperatures are in K.
-* All logical values are stored as integers (0=FALSE, not 0=TRUE).
-*
-*/
+ * Written by Yujie Liu  - 2025.06.07
+ *
+ * Update:
+ *   2025.06.08 - Support triclinic system, defcell and coords must be converted
+ *
+ * TODO:
+ *   Output temp, pressure, energy, etc. (easy)
+ *
+ * All times are in ps.
+ * All energies are in kcal mol-1.
+ * All pressure and stress values are in GPa.
+ * All volumes are in Å3.
+ * All coordinates are in Å.
+ * All velocities are in Å ps-1.
+ * All forces are in kcal mol-1 Å-1.
+ * All temperatures are in K.
+ * All logical values are stored as integers (0=FALSE, not 0=TRUE).
+ *
+ */
 
 
 #include <fstream>

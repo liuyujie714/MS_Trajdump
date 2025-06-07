@@ -1,12 +1,13 @@
 #ifndef MSTRJPARSER_H
 #define MSTRJPARSER_H
 
+#include <math.h>
+
 #include <array>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
-#include <math.h>
 
 #include "Eigen/Dense"
 
@@ -22,12 +23,9 @@ struct Vec
 
     Vec(double x0, double y0, double z0) : x(x0), y(y0), z(z0) {}
 
-    double norm() const { return sqrt(x * x + y * y + z * z);}
+    double norm() const { return sqrt(x * x + y * y + z * z); }
 
-    double operator*(const Vec& rhs) const
-    {
-        return x * rhs.x + y * rhs.y + z * rhs.z;
-    }
+    double operator*(const Vec& rhs) const { return x * rhs.x + y * rhs.y + z * rhs.z; }
 
     double x, y, z;
 };
@@ -198,9 +196,7 @@ struct PDBCrystal
 {
     PDBCrystal() : A(0), B(0), C(0), alpha(0), beta(0), gamma(0) {}
 
-    void print() const {
-        printf("CRYST1 %f %f %f %f %f %f\n", A, B, C, alpha, beta, gamma);
-    }
+    void print() const { printf("CRYST1 %f %f %f %f %f %f\n", A, B, C, alpha, beta, gamma); }
 
     double A, B, C;
     double alpha, beta, gamma;

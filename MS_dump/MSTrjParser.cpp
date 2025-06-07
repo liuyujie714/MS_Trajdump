@@ -1,5 +1,7 @@
 #include "MSTrjParser.h"
 
+#include <float.h>
+
 #include <algorithm>
 #include <array>
 #include <fstream>
@@ -7,7 +9,6 @@
 #include <memory>
 #include <sstream>
 #include <vector>
-#include <float.h>
 
 #include "FileSerializer.h"
 
@@ -22,7 +23,7 @@ constexpr double DEG2RAD(double deg)
 }
 
 //! return angle in degree
-static double get_angle(const Vec &u, const Vec &v)
+static double get_angle(const Vec& u, const Vec& v)
 {
     double cos_angle = u * v;
     cos_angle /= u.norm() * v.norm();
@@ -34,20 +35,20 @@ static double get_angle(const Vec &u, const Vec &v)
 //! convert defcell of .trj to pdb crystal
 static void cell_to_pdb(const matrix& mat, PDBCrystal& crystal)
 {
-    Vec va(mat(0,0), mat(1,0), mat(2,0));
+    Vec va(mat(0, 0), mat(1, 0), mat(2, 0));
     crystal.A = va.norm();
-    Vec vb(mat(0,1), mat(1,1), mat(2,1));
+    Vec vb(mat(0, 1), mat(1, 1), mat(2, 1));
     crystal.B = vb.norm();
-    Vec vc(mat(0,2), mat(1,2), mat(2,2));
-    crystal.C = vc.norm(); 
+    Vec vc(mat(0, 2), mat(1, 2), mat(2, 2));
+    crystal.C = vc.norm();
 
     if (crystal.A > 0 && crystal.B > 0 && crystal.C > 0)
     {
         crystal.alpha = get_angle(vb, vc);
-        crystal.beta = get_angle(va, vc);
+        crystal.beta  = get_angle(va, vc);
         crystal.gamma = get_angle(va, vb);
     }
-    else 
+    else
     {
         crystal.A = crystal.B = crystal.C = 0;
         crystal.alpha = crystal.beta = crystal.gamma = 0;
@@ -60,9 +61,9 @@ static inline int is_zero(double val)
 }
 
 /*! \brief Convert [a, b, c, alpha, beta, gamma] to The lower triangular matrix box
-* \param[in] crystal: PDBCrystal
-* \param[out] box: array of 3*3 DIM
-*/
+ * \param[in] crystal: PDBCrystal
+ * \param[out] box: array of 3*3 DIM
+ */
 static inline int pdb_to_gro(const PDBCrystal& crystal, matrix& box)
 {
     double lx = crystal.A, ly = crystal.B, lz = crystal.C;
@@ -70,19 +71,16 @@ static inline int pdb_to_gro(const PDBCrystal& crystal, matrix& box)
 
     box.setZero();
     // all angle = 90.0, is orthogonal box
-    if (is_zero(alpha - 90.0) &&
-        is_zero(beta - 90.0) &&
-        is_zero(gamma - 90.0)
-        )
+    if (is_zero(alpha - 90.0) && is_zero(beta - 90.0) && is_zero(gamma - 90.0))
     {
-        box(0,0) = lx;
-        box(1,1) = ly;
-        box(2,2) = lz;
+        box(0, 0) = lx;
+        box(1, 1) = ly;
+        box(2, 2) = lz;
         return ORTH_BOX;
     }
 
-    if (!(lx > 0 && ly > 0 && lz > 0 && alpha > 0 && beta > 0 && gamma > 0 &&
-        alpha < 180.0 && beta < 180.0 && gamma < 180.0))
+    if (!(lx > 0 && ly > 0 && lz > 0 && alpha > 0 && beta > 0 && gamma > 0 && alpha < 180.0
+          && beta < 180.0 && gamma < 180.0))
     {
         // bad box
         fprintf(stderr, "Warning! Bad CRYST1 information, ignore box\n");
@@ -91,24 +89,27 @@ static inline int pdb_to_gro(const PDBCrystal& crystal, matrix& box)
     else
     {
         double cos_alpha, cos_beta, cos_gamma, sin_gamma;
-        box(0,0) = lx;
+        box(0, 0) = lx;
         cos_alpha = (alpha == 90.0) ? 0.0 : cos(DEG2RAD(alpha));
-        cos_beta = (beta == 90.0) ? 0.0 : cos(DEG2RAD(beta));
-        if (gamma == 90.0) {
+        cos_beta  = (beta == 90.0) ? 0.0 : cos(DEG2RAD(beta));
+        if (gamma == 90.0)
+        {
             cos_gamma = 0.0;
             sin_gamma = 1.0;
         }
-        else {
+        else
+        {
             cos_gamma = cos(DEG2RAD(gamma));
             sin_gamma = sin(DEG2RAD(gamma));
         }
-        box(1,0) = ly * cos_gamma;
-        box(1,1) = ly * sin_gamma;
-        box(2,0) = lz * cos_beta;
-        box(2,1) = lz * (cos_alpha - cos_beta * cos_gamma) / sin_gamma;
-        box(2,2) = sqrt(lz * lz - box(2,0) * box(2,0) - box(2,1) * box(2,1));
+        box(1, 0) = ly * cos_gamma;
+        box(1, 1) = ly * sin_gamma;
+        box(2, 0) = lz * cos_beta;
+        box(2, 1) = lz * (cos_alpha - cos_beta * cos_gamma) / sin_gamma;
+        box(2, 2) = sqrt(lz * lz - box(2, 0) * box(2, 0) - box(2, 1) * box(2, 1));
         // bad box, return 0
-        if (box(2,2) <= 0) {
+        if (box(2, 2) <= 0)
+        {
             box.setZero();
             fprintf(stderr, "Warning! wrong CRYST1 information, ignore box\n");
             return NO_BOX;
@@ -300,12 +301,12 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
         {
             fr.defcell.setZero(); //! clear zero
             //! Not: start from index 2
-            fr.defcell(0,0) = DefCell[2];
-            fr.defcell(1,1) = DefCell[3];
-            fr.defcell(2,2) = DefCell[4];
-            fr.defcell(2,1) = DefCell[5];
-            fr.defcell(2,0) = DefCell[6];
-            fr.defcell(1,0) = DefCell[7];
+            fr.defcell(0, 0) = DefCell[2];
+            fr.defcell(1, 1) = DefCell[3];
+            fr.defcell(2, 2) = DefCell[4];
+            fr.defcell(2, 1) = DefCell[5];
+            fr.defcell(2, 0) = DefCell[6];
+            fr.defcell(1, 0) = DefCell[7];
 
             //! convert pdb format
             cell_to_pdb(fr.defcell, fr.crystal);
@@ -362,9 +363,10 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
         //! convert coords for triclin system
         for (auto& coord : fr.coords)
         {
-            Eigen::Vector3d frac = fr.defcell.colPivHouseholderQr().solve(Eigen::Vector3d(coord.x, coord.y, coord.z));
+            Eigen::Vector3d frac =
+                fr.defcell.colPivHouseholderQr().solve(Eigen::Vector3d(coord.x, coord.y, coord.z));
             Eigen::Vector3d xyz = fr.box.transpose() * frac;
-            coord = Vec(xyz.x(), xyz.y(), xyz.z());
+            coord               = Vec(xyz.x(), xyz.y(), xyz.z());
         }
     }
 
@@ -615,21 +617,18 @@ int export_xyz(const std::unique_ptr<FileSerializer>& p,
     while (read_frame(p, param, fr) == TPR_SUCCESS)
     {
         //! show progress
-        if (nframes % 100 == 0)
-        {
-            fprintf(stderr, "Convert %d frame\r", nframes);
-        }
+        if (nframes % 100 == 0) { fprintf(stderr, "Convert %d frame\r", nframes); }
 
         const auto& box = fr.box;
         std::sprintf(title,
                      "Lattice=\"%f 0.0 0.0 %f %f 0.0 %f %f %f\""
                      " Properties=species:S:1:pos:R:3\n",
-                     box(0,0),
-                     box(1,0),
-                     box(1,1),
-                     box(2,0),
-                     box(2,1),
-                     box(2,2));
+                     box(0, 0),
+                     box(1, 0),
+                     box(1, 1),
+                     box(2, 0),
+                     box(2, 1),
+                     box(2, 2));
 
         // only .trj
         if (!pdb.has_file)
