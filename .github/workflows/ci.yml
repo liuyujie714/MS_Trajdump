@@ -27,7 +27,7 @@ jobs:
           make -j2
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MS_dump_Linux
           path: ./MS_dump/MS_dump
@@ -57,7 +57,7 @@ jobs:
           make -j2
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MS_dump_Windows
           path: ./MS_dump/MS_dump.exe
