@@ -110,16 +110,11 @@ jobs:
           https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           
           github-release ${{env.RELEASE_COMMAND}} --tag ${{ env.RELEASE_TAG }} --name "Latest Bleed Release" --description "$DESCRIPTION" --pre-release
-      
-      - name: Download Ubuntu artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: MS_dump_Linux
 
-      - name: Download Windows artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: MS_dump_Windows
+      - name: Download artifacts
+        run: gh run download --repo "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID"
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Package Linux and Windows artifact to release
         run: |
