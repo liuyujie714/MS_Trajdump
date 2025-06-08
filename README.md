@@ -1,4 +1,4 @@
-**<font size=5> A tool to export common trajectory file from Material Studio</font>**
+**<font size=5> A tool to export common trajectory file from Materials Studio</font>**
 
 
 
@@ -13,7 +13,7 @@
 
 # Usage
 
-First locate molecular dynamics trajectory file created by `Material Studio`, hidden file `.trj`  and `.xtd` are located in same folder.
+First locate molecular dynamics trajectory file created by `Materials Studio`, hidden file `.trj`  and `.xtd` are located in same folder.
 
 
 
