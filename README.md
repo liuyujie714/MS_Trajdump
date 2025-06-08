@@ -1,4 +1,4 @@
-**<font size=5> A tool to export XYZ trajectory file from Material Studio</font>**
+**<font size=5> A tool to export common trajectory file from Material Studio</font>**
 
 
 
