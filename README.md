@@ -17,8 +17,7 @@ First locate molecular dynamics trajectory file created by `Material Studio`, hi
 
 
 
-Then download program from https://github.com/liuyujie714/MS_Trajdump/releases/tag/bleed
-
+Then download program from here: [![Downloads](https://img.shields.io/github/downloads/liuyujie714/MS_Trajdump/total)](https://github.com/liuyujie714/MS_Trajdump/releases)
 
 
 * Linux
@@ -63,4 +62,10 @@ Default output `MS_traj.xyz`, the comment line has box information that can be r
 ```
 
 
+
+# TODO
+
+* Export `.trr` format which contains velocity and forces if exist
+
+* Export energy items of .trj (easy)
 
