@@ -53,6 +53,12 @@ int main(int argc, char* argv[])
             return -1;
         }
     }
+    //! at least .trj must be specified
+    if (ftraj == nullptr)
+    {
+        fprintf(stderr, "Error! No trajectory file specified\n");
+        return -1;
+    }
 
     //! read binary traj
     std::unique_ptr<FileSerializer> p;
