@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 
     if (argc < 3)
     {
-        fprintf(stderr, "Missing input options.\n\tUsage: %s system.pdb MS.trj\n", argv[0]);
+        fprintf(stderr, "Missing input options.\n\tUsage: %s -s system.pdb -f MS.trj\n", argv[0]);
         return -1;
     }
 
