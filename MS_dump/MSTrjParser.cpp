@@ -292,6 +292,7 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
     }
 
     //! System Box information, exist or not always has 22 real
+    int boxType = NO_BOX;
     if (param.PeriodicType > 0)
     {
         std::vector<float> DefCell(22);
@@ -316,7 +317,7 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
             cell_to_pdb(fr.defcell, fr.crystal);
 
             //! convert pdb to gro box
-            (void)pdb_to_gro(fr.crystal, fr.box);
+            boxType = pdb_to_gro(fr.crystal, fr.box);
         }
 
         //! skip 8 bytes
@@ -364,13 +365,16 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
     //! atom coords
     {
         read_vector(p, fr.coords, param);
-        //! convert coords for triclin system
-        for (auto& coord : fr.coords)
+        //! must convert coords for triclin system
+        if (boxType != NO_BOX)
         {
-            Eigen::Vector3d frac =
-                fr.defcell.colPivHouseholderQr().solve(Eigen::Vector3d(coord.x, coord.y, coord.z));
-            Eigen::Vector3d xyz = fr.box.transpose() * frac;
-            coord               = Vec(xyz.x(), xyz.y(), xyz.z());
+            for (auto& coord : fr.coords)
+            {
+                Eigen::Vector3d frac =
+                    fr.defcell.colPivHouseholderQr().solve(Eigen::Vector3d(coord.x, coord.y, coord.z));
+                Eigen::Vector3d xyz = fr.box.transpose() * frac;
+                coord = Vec(xyz.x(), xyz.y(), xyz.z());
+            }
         }
     }
 
