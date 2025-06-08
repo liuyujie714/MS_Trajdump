@@ -24,6 +24,7 @@
 #include <memory>
 #include <sstream>
 
+#include "FileExport.h"
 #include "FileSerializer.h"
 #include "MSTrjParser.h"
 
@@ -34,18 +35,23 @@ int main(int argc, char* argv[])
     PDBInfo     pdb;
     Parameters  param;
 
-    if (argc < 2 || argc > 3)
+    if (argc < 3)
     {
         fprintf(stderr, "Missing input options.\n\tUsage: %s system.pdb MS.trj\n", argv[0]);
         return -1;
     }
 
-    if (argc == 2) { ftraj = argv[1]; }
-    else
+    for (int i = 1; i < argc; i++)
     {
-        //! read pdb
-        pdb   = read_pdb(argv[1]);
-        ftraj = argv[2];
+        const char* s = argv[i];
+        if (!strcmp(s, "-s")) { pdb = read_pdb(argv[++i]); }
+        else if (!strcmp(s, "-f")) { ftraj = argv[++i]; }
+        else if (!strcmp(s, "-o")) { outfile = argv[++i]; }
+        else
+        {
+            fprintf(stderr, "Error! Unknown option %s\n", s);
+            return -1;
+        }
     }
 
     //! read binary traj
@@ -68,7 +74,7 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    int nfr = export_xyz(p, param, pdb, outfile);
+    int nfr = export_traj(p, param, pdb, outfile);
 
     fprintf(stderr, "INFO) Total written %d frames to %s\n", nfr, outfile.c_str());
 

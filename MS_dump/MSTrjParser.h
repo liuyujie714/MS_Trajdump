@@ -11,8 +11,10 @@
 
 #include "Eigen/Dense"
 
-constexpr int LENSTR  = 80; //! the character length of Comment
-constexpr int version = 28; //! control how to deal with char bytes
+constexpr int    LENSTR   = 80;             //! the character length of Comment
+constexpr int    version  = 28;             //! control how to deal with char bytes
+constexpr double Nano2Ang = 10.0;           //! the factor nanometer to angstrom
+constexpr double Ang2Nano = 1.0 / Nano2Ang; //! the factor angstrom to nanometer
 
 //! int to bool
 #define I2Bool(x) ((x) == 1)
@@ -187,7 +189,7 @@ struct PDBInfo
 {
     std::vector<std::string> atomname;
     std::vector<Vec>         coords;
-    //! if has pdb file
+    //! if provid pdb file
     bool has_file = false;
 };
 
@@ -198,11 +200,14 @@ struct PDBCrystal
 
     void print() const { printf("CRYST1 %f %f %f %f %f %f\n", A, B, C, alpha, beta, gamma); }
 
+    //! set all zero
+    void clear() { A = B = C = alpha = beta = gamma = 0; }
+
     double A, B, C;
     double alpha, beta, gamma;
 };
 
-using matrix = Eigen::Matrix3d;
+using Matrix = Eigen::Matrix3d;
 
 struct Frame
 {
@@ -210,9 +215,9 @@ struct Frame
     std::vector<Vec> velocities;
     std::vector<Vec> forces;
     //! original Defcell from .trj
-    matrix defcell;
-    //! The converted lower triangular simulation box (same as .gro)
-    matrix box;
+    Matrix defcell;
+    //! The converted lower triangular simulation box (same as .gro but unit is Angstrom)
+    Matrix box;
     //! pdb crystal
     PDBCrystal crystal;
 
@@ -227,12 +232,20 @@ struct Frame
     //! if has force
     bool has_force = false;
 
+    //! current step
+    int step = 0;
+    //! current time, ps
+    float time = 0;
+
     //! clear all data
     void clear()
     {
+        step = 0;
+        time = 0;
         coords.clear();
         velocities.clear();
         forces.clear();
+        crystal.clear();
         defcell.setZero();
         box.setZero();
         has_velocity = has_force = false;
@@ -252,11 +265,5 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
 
 //! read MS .trj header, return 0 if succeed
 int read_header(const std::unique_ptr<FileSerializer>& p, Parameters& param, PDBInfo& pdb);
-
-//! export xyz, return numbe of frames
-int export_xyz(const std::unique_ptr<FileSerializer>& p,
-               const Parameters&                      param,
-               const PDBInfo&                         pdb,
-               const std::string&                     outfile);
 
 #endif // MSTRJPARSER_H

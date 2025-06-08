@@ -2,9 +2,22 @@
 
 
 
+# Features
+
+* Support full periodic boundary conditions
+* Support export move + fix atoms if exist `.pdb`
+* Support export `xyz` trajectory file
+* Support export `xtc` of gromacs file (includes time and step)
+
+
+
 # Usage
 
-Firstly find molecular dynamics trajectory file created by `Material Studio`, hidden file `.trj` is located in same folder that of `.xtd`
+First locate molecular dynamics trajectory file created by `Material Studio`, hidden file `.trj`  and `.xtd` are located in same folder.
+
+
+
+Then download program from https://github.com/liuyujie714/MS_Trajdump/releases/tag/bleed
 
 
 
@@ -12,20 +25,22 @@ Firstly find molecular dynamics trajectory file created by `Material Studio`, hi
 
   ```
   chmod a+x MS_dump
-  ./MS_dump system.pdb system.trj
+  ./MS_dump -s system.pdb -f system.trj
   ```
 
 * Windows
 
   ```
-  .\MS_dump.exe system.pdb system.trj
+  .\MS_dump.exe -s system.pdb -f system.trj
   ```
 
 
 
-Output `MS_traj.xyz`, the comment line has box information that can be read by `Ovito` directly. 
+Default output `MS_traj.xyz`, the comment line has box information that can be read by [Ovito](https://www.ovito.org/)  software directly. 
 
 > Lattice="14.408798 0.0 0.0 0.000000 14.408798 0.0 0.000000 0.000000 14.408798" Properties=species:S:1:pos:R:3
+
+
 
 
 
@@ -34,8 +49,18 @@ Output `MS_traj.xyz`, the comment line has box information that can be read by `
 > The exported xyz will use `C` name for all atoms if not provide pdb file, such as:
 >
 > ```
-> .\MS_dump.exe system.trj
+> .\MS_dump.exe -f system.trj
 > ```
+
+
+
+
+
+`-o` option can control output format, if you want to export `.xtc` of gromacs, use command:
+
+```
+.\MS_dump.exe -s system.pdb -f system.trj -o system.xtc
+```
 
 
 

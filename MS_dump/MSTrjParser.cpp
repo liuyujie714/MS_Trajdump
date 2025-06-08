@@ -33,7 +33,7 @@ static double get_angle(const Vec& u, const Vec& v)
 }
 
 //! convert defcell of .trj to pdb crystal
-static void cell_to_pdb(const matrix& mat, PDBCrystal& crystal)
+static void cell_to_pdb(const Matrix& mat, PDBCrystal& crystal)
 {
     Vec va(mat(0, 0), mat(1, 0), mat(2, 0));
     crystal.A = va.norm();
@@ -64,7 +64,7 @@ static inline int is_zero(double val)
  * \param[in] crystal: PDBCrystal
  * \param[out] box: array of 3*3 DIM
  */
-static inline int pdb_to_gro(const PDBCrystal& crystal, matrix& box)
+static inline int pdb_to_gro(const PDBCrystal& crystal, Matrix& box)
 {
     double lx = crystal.A, ly = crystal.B, lz = crystal.C;
     double alpha = crystal.alpha, beta = crystal.beta, gamma = crystal.gamma;
@@ -202,8 +202,10 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
         //! read current time and step
         if (!p->do_double(&d)) return TPR_FAILED;
         msg("time= %f\n", d);
+        fr.time = static_cast<float>(d);
         if (!p->do_int(&idum)) return TPR_FAILED;
         msg("step= %d\n", idum);
+        fr.step = idum;
 
         for (int j = 0; j < EnergyType::NR_Ene; j++)
         {
@@ -235,8 +237,10 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
         float f;
         if (!p->do_float(&f)) return TPR_FAILED;
         msg("time= %f\n", f);
+        fr.time = f;
         if (!p->do_int(&idum)) return TPR_FAILED;
         msg("step= %d\n", idum);
+        fr.step = idum;
 
         for (int j = 0; j < 33; j++)
         {
@@ -595,65 +599,4 @@ int read_header(const std::unique_ptr<FileSerializer>& p, Parameters& param, PDB
     msg("header_size= %lld\n", param.header_size);
 
     return 0;
-}
-
-int export_xyz(const std::unique_ptr<FileSerializer>& p,
-               const Parameters&                      param,
-               const PDBInfo&                         pdb,
-               const std::string&                     outfile)
-{
-    //! Those atom can move
-    std::vector<char> moved(param.total_natoms, '\0');
-    for (const auto& it : param.atomMapToPDB)
-    {
-        moved[it.second] = 1;
-    }
-
-    // Frame starting from here
-    Frame         fr;
-    std::ofstream ofs(outfile);
-    int           nframes    = 0;
-    char          title[256] = "";
-    while (read_frame(p, param, fr) == TPR_SUCCESS)
-    {
-        //! show progress
-        if (nframes % 100 == 0) { fprintf(stderr, "Convert %d frame\r", nframes); }
-
-        const auto& box = fr.box;
-        std::sprintf(title,
-                     "Lattice=\"%f 0.0 0.0 %f %f 0.0 %f %f %f\""
-                     " Properties=species:S:1:pos:R:3\n",
-                     box(0, 0),
-                     box(1, 0),
-                     box(1, 1),
-                     box(2, 0),
-                     box(2, 1),
-                     box(2, 2));
-
-        // only .trj
-        if (!pdb.has_file)
-        {
-            //! only move atoms
-            ofs << param.moved_natoms << "\n" << title;
-            for (int i = 0; i < param.moved_natoms; i++)
-            {
-                ofs << pdb.atomname[i] << " " << fr.coords[i].x << " " << fr.coords[i].y << " "
-                    << fr.coords[i].z << "\n";
-            }
-        }
-        else
-        {
-            //! all atoms
-            ofs << param.total_natoms << "\n" << title;
-            for (int i = 0; i < param.total_natoms; i++)
-            {
-                const auto& coord = moved[i] ? fr.coords[param.atomMapToMove.at(i)] : pdb.coords[i];
-                ofs << pdb.atomname[i] << " " << coord.x << " " << coord.y << " " << coord.z << "\n";
-            }
-        }
-
-        nframes++;
-    }
-
-    return nframes;
 }

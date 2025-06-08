@@ -21,12 +21,27 @@
     <ClInclude Include="MSTrjParser.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="FileExport.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MSTrj2GRO.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="MSTrjParser.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FileExport.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="xdrfile\xdrfile.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="xdrfile\xdrfile_trr.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="xdrfile\xdrfile_xtc.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -123,7 +123,7 @@
       <AdditionalOptions>/D_CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\liuyujie714\Desktop\MS_dump\MS_dump\eigen-3.3.9;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\liuyujie714\Desktop\MS_dump\MS_dump\xdrfile;C:\Users\liuyujie714\Desktop\MS_dump\MS_dump\eigen-3.3.9;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -135,10 +135,15 @@
   <ItemGroup>
     <ClInclude Include="FileSerializer.h" />
     <ClInclude Include="MSTrjParser.h" />
+    <ClInclude Include="FileExport.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="FileExport.cpp" />
     <ClCompile Include="MSTrj2GRO.cpp" />
     <ClCompile Include="MSTrjParser.cpp" />
+    <ClCompile Include="xdrfile\xdrfile.c" />
+    <ClCompile Include="xdrfile\xdrfile_trr.c" />
+    <ClCompile Include="xdrfile\xdrfile_xtc.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
