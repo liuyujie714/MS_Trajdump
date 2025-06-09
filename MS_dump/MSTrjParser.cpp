@@ -32,7 +32,9 @@ static double get_angle(const Vec& u, const Vec& v)
     return ::acos(cos_angle) * 57.29577951308232;
 }
 
-//! convert defcell of .trj to pdb crystal
+/* \brief Convert defcell of.trj to pdb crystal.
+* Why do this? Because the original cell info is not match general format for triclinic system
+*/
 static void cell_to_pdb(const Matrix& mat, PDBCrystal& crystal)
 {
     Vec va(mat(0, 0), mat(1, 0), mat(2, 0));
@@ -272,7 +274,7 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
     //! skip 8 bytes
     p->fseek_(8L, SEEK_CUR);
 
-    //! if exist, has 4 double
+    //! if exist, has 4 real
     /*
     snose	real*8	Value for Nos¨¦ heat bath variable
     snoseh	real*8	Half step value for Nos¨¦ heat bath variable
@@ -305,7 +307,7 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
         // if (param.DefCel)
         {
             fr.defcell.setZero(); //! clear zero
-            //! Not: start from index 2
+            //! Note: start from index 2
             fr.defcell(0, 0) = DefCell[2];
             fr.defcell(1, 1) = DefCell[3];
             fr.defcell(2, 2) = DefCell[4];

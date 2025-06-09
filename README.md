@@ -22,7 +22,7 @@ First locate molecular dynamics trajectory file created by `Materials Studio`, h
 
 
 
-Then download program from here: [![Downloads](https://img.shields.io/github/downloads/liuyujie714/MS_Trajdump/total)](https://github.com/liuyujie714/MS_Trajdump/releases)
+Then download program from here: [Download](https://github.com/liuyujie714/MS_Trajdump/releases)
 
 
 * Linux
