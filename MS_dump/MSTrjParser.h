@@ -11,10 +11,11 @@
 
 #include "Eigen/Dense"
 
-constexpr int    LENSTR   = 80;             //! the character length of Comment
-constexpr int    version  = 28;             //! control how to deal with char bytes
-constexpr double Nano2Ang = 10.0;           //! the factor nanometer to angstrom
-constexpr double Ang2Nano = 1.0 / Nano2Ang; //! the factor angstrom to nanometer
+constexpr int    LENSTR      = 80;             //! the character length of Comment
+constexpr int    version     = 28;             //! control how to deal with char bytes
+constexpr double Nano2Ang    = 10.0;           //! the factor nanometer to angstrom
+constexpr double Ang2Nano    = 1.0 / Nano2Ang; //! the factor angstrom to nanometer
+constexpr double ForceFactor = 41.84;          //! kcal/mol/A -> kJ/mol/nm
 
 //! int to bool
 #define I2Bool(x) ((x) == 1)

@@ -49,5 +49,6 @@ int export_traj(const std::unique_ptr<FileSerializer>& p,
 
 REGISTER_EXPORT(XYZExport);
 REGISTER_EXPORT(XTCExport);
+REGISTER_EXPORT(TRRExport);
 
 #endif // !FILEEXPORT_H

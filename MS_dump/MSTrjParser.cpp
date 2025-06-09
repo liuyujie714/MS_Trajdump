@@ -33,8 +33,8 @@ static double get_angle(const Vec& u, const Vec& v)
 }
 
 /* \brief Convert defcell of.trj to pdb crystal.
-* Why do this? Because the original cell info is not match general format for triclinic system
-*/
+ * Why do this? Because the original cell info is not match general format for triclinic system
+ */
 static void cell_to_pdb(const Matrix& mat, PDBCrystal& crystal)
 {
     Vec va(mat(0, 0), mat(1, 0), mat(2, 0));
@@ -50,14 +50,10 @@ static void cell_to_pdb(const Matrix& mat, PDBCrystal& crystal)
         crystal.beta  = get_angle(va, vc);
         crystal.gamma = get_angle(va, vb);
     }
-    else
-    {
-        crystal.A = crystal.B = crystal.C = 0;
-        crystal.alpha = crystal.beta = crystal.gamma = 0;
-    }
+    else { crystal.clear(); }
 }
 
-static inline int is_zero(double val)
+static inline bool is_zero(double val)
 {
     return val < FLT_EPSILON && val > -FLT_EPSILON;
 }
@@ -375,7 +371,7 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
                 Eigen::Vector3d frac =
                     fr.defcell.colPivHouseholderQr().solve(Eigen::Vector3d(coord.x, coord.y, coord.z));
                 Eigen::Vector3d xyz = fr.box.transpose() * frac;
-                coord = Vec(xyz.x(), xyz.y(), xyz.z());
+                coord               = Vec(xyz.x(), xyz.y(), xyz.z());
             }
         }
     }
@@ -582,7 +578,7 @@ int read_header(const std::unique_ptr<FileSerializer>& p, Parameters& param, PDB
         //! Complete directory specification and filename of energy expression file used for generating this trajectory
         std::vector<unsigned char> descrip(param.nEEXtitle + 1);
         p->do_vector(descrip.data(), param.nEEXtitle, 4, version);
-        descrip[param.nEEXtitle] = '\0';
+        descrip.back() = '\0';
         msg("EEX title= %s\n", descrip.data());
 
         //! skip 8 bytes
@@ -594,7 +590,7 @@ int read_header(const std::unique_ptr<FileSerializer>& p, Parameters& param, PDB
         p->do_int(&idum);
         std::vector<unsigned char> descrip(idum + 1);
         p->do_vector(descrip.data(), idum, 4, version);
-        descrip[idum] = '\0';
+        descrip.back() = '\0';
         msg("Parameter File= %s\n", descrip.data());
 
         //! skip 8 bytes

@@ -8,6 +8,7 @@
  * TODO:
  *   Output temp, pressure, energy, etc. (easy)
  *
+ * Materials Studio .trj use below units:
  * All times are in ps.
  * All energies are in kcal mol-1.
  * All pressure and stress values are in GPa.

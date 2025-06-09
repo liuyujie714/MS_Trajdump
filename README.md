@@ -4,7 +4,7 @@
 
 # Features
 
-* Support full periodic boundary conditions.
+* Support full periodic boundary conditions
 
   > Please note that this tool has converted the coordinates to match the PDB unit cell and coordinates exported by MS, so there may be differences from the original data output by Perl/Trj2Ascii, especially for the triclinic system.
 
@@ -13,6 +13,10 @@
 * Support export `xyz` trajectory file
 
 * Support export `xtc` of gromacs file (includes time and step)
+
+* Support export `.trr` format which contains velocities (`nm/ps`) and forces`(kJ/mol/nm)` if it exists
+
+  > Note that fixed atoms will have zero velocity and force, meaning their coordinates/velocity/force data won't appear in the `.trj` file.
 
 
 
@@ -23,6 +27,8 @@ First locate molecular dynamics trajectory file created by `Materials Studio`, h
 
 
 Then download program from here: [Download](https://github.com/liuyujie714/MS_Trajdump/releases)
+
+
 
 
 * Linux
@@ -68,9 +74,9 @@ Default output `MS_traj.xyz`, the comment line has box information that can be r
 
 
 
-# TODO
 
-* Export `.trr` format which contains velocity and forces if exist
+
+# TODO
 
 * Export energy items of .trj (easy)
 
