@@ -4,9 +4,14 @@
 
 # Features
 
-* Support full periodic boundary conditions
+* Support full periodic boundary conditions.
+
+  > Please note that this tool has converted the coordinates to match the PDB unit cell and coordinates exported by MS, so there may be differences from the original data output by Perl/Trj2Ascii, especially for the triclinic system.
+
 * Support export move + fix atoms if exist `.pdb`
+
 * Support export `xyz` trajectory file
+
 * Support export `xtc` of gromacs file (includes time and step)
 
 

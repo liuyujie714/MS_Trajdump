@@ -1,8 +1,9 @@
-﻿/* A tool to read Material Studio .trj file and export coords
+﻿/* A tool to read Materials Studio .trj file and export coords
  * Written by Yujie Liu  - 2025.06.07
  *
  * Update:
- *   2025.06.08 - Support triclinic system, defcell and coords must be converted
+ *   2025.06.08 - Support triclinic system, defcell and coords must be converted.
+ *                This conversion matches the export behavior of MS, such as export PDB format.
  *
  * TODO:
  *   Output temp, pressure, energy, etc. (easy)
