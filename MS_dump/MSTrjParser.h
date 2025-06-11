@@ -15,14 +15,16 @@ constexpr int    LENSTR      = 80;             //! the character length of Comme
 constexpr int    version     = 28;             //! control how to deal with char bytes
 constexpr double Nano2Ang    = 10.0;           //! the factor nanometer to angstrom
 constexpr double Ang2Nano    = 1.0 / Nano2Ang; //! the factor angstrom to nanometer
+constexpr double Kcal2KJ     = 4.184;          //! kcal/mol -> kJ/mol
 constexpr double ForceFactor = 41.84;          //! kcal/mol/A -> kJ/mol/nm
+constexpr double GPa2Bar     = 1E4;            //! GPa -> Bar
 
 //! int to bool
 #define I2Bool(x) ((x) == 1)
 
 struct Vec
 {
-    Vec() = default;
+    Vec() : Vec(0, 0, 0) {}
 
     Vec(double x0, double y0, double z0) : x(x0), y(y0), z(z0) {}
 

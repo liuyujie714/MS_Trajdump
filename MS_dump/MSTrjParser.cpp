@@ -121,7 +121,7 @@ void read_vector(const std::unique_ptr<FileSerializer>& p, std::vector<Vec>& vec
 {
     vec.resize(param.moved_natoms);
     float     f;
-    const int prec = (param.is_double() ? 8 : 4);
+    const int prec = (param.is_double() ? sizeof(double) : sizeof(float));
 
     for (int j = 0; j < param.moved_natoms; j++)
     {
@@ -190,7 +190,7 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
     int       idum;
     float     f;
     double    d;
-    const int prec = (param.is_double() ? 8 : 4);
+    const int prec = (param.is_double() ? sizeof(double) : sizeof(float));
 
     fr.clear();
 

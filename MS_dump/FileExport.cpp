@@ -254,13 +254,46 @@ int TRRExport::run()
                       fr.has_force ? fvec.data() : NULL)
             != exdrOK)
         {
-            fprintf(stderr, "Error! Can not write xtc for frame %d\n", nframes);
+            fprintf(stderr, "Error! Can not write trr for frame %d\n", nframes);
             exit(1);
         }
 
         nframes++;
     }
     xdrfile_close(fd);
+
+    return nframes;
+}
+
+int EnerExport::run()
+{
+    // Frame starting from here
+    Frame fr;
+    int   nframes = 0;
+
+    if (!param_.is_double())
+    {
+        fprintf(stderr, "Error! Too old Materials Studio version to export energy items\n");
+        exit(1);
+    }
+
+
+    std::ofstream ofs(outfile_);
+    ofs << "#Time(ps) Temperature(K) Potential(kJ/mol) Kinetic(KJ/mol) TotalEnergy(KJ/mol) ";
+    ofs << "Pressure(bar) Volume(A^3)\n";
+    while (read_frame(p_, param_, fr) == TPR_SUCCESS)
+    {
+        //! show progress
+        if (nframes % 100 == 0) { fprintf(stderr, "Process %d frame\r", nframes); }
+
+        ofs << fr.time << " " << fr.ener[EnergyType::Temp] << " "
+            << fr.ener[EnergyType::TotalPE] * Kcal2KJ << " " << fr.ener[EnergyType::TotalKE] * Kcal2KJ
+            << " " << fr.ener[EnergyType::TotalE] * Kcal2KJ << " "
+            << fr.pvol[PressVolType::Press] * GPa2Bar << " " << fr.pvol[PressVolType::Volume] << "\n";
+
+        nframes++;
+    }
+
 
     return nframes;
 }
@@ -280,6 +313,7 @@ int export_traj(const std::unique_ptr<FileSerializer>& p,
     if (suffix == "XYZ") { exporter = std::make_unique<XYZExport>(p, param, pdb, outfile); }
     else if (suffix == "XTC") { exporter = std::make_unique<XTCExport>(p, param, pdb, outfile); }
     else if (suffix == "TRR") { exporter = std::make_unique<TRRExport>(p, param, pdb, outfile); }
+    else if (suffix == "TXT") { exporter = std::make_unique<EnerExport>(p, param, pdb, outfile); }
     else
     {
         fprintf(stderr, "Error! Unknown export format: '.%s'\n", suffix.c_str());

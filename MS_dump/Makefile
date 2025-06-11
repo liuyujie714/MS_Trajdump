@@ -1,5 +1,5 @@
 CC      = g++
-CFLAGS  = -static -O3 -I. -I./eigen-3.3.9 -I./xdrfile
+CFLAGS  = -static -Wall -O3 -I. -I./eigen-3.3.9 -I./xdrfile
 CXXFLAGS = $(CFLAGS) -std=c++17  
 
 CPP_SRC = $(wildcard *.cpp)

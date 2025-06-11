@@ -18,7 +18,13 @@
 
   > Note that fixed atoms will have zero velocity and force, meaning their coordinates/velocity/force data won't appear in the `.trj` file.
 
+* Support export `.txt` format (`Plain text file`) which contains all kinds of energy items and others:
 
+  ```
+  #Time(ps) Temperature(K) Potential(kJ/mol) Kinetic(KJ/mol) TotalEnergy(KJ/mol) Pressure(bar) Volume(A^3)
+  ```
+
+  
 
 # Usage
 
@@ -66,17 +72,25 @@ Default output `MS_traj.xyz`, the comment line has box information that can be r
 
 
 
-`-o` option can control output format, if you want to export `.xtc` of gromacs, use command:
+`-o` option can control output format
+
+
+
+If you want to export `.xtc/.trr` of gromacs, use command:
 
 ```
 .\MS_dump.exe -s system.pdb -f system.trj -o system.xtc
 ```
 
+```
+.\MS_dump.exe -s system.pdb -f system.trj -o system.trr
+```
 
 
 
+Also export energy items:
 
-# TODO
-
-* Export energy items of .trj (easy)
+```
+.\MS_dump.exe -f system.trj -o energy.txt
+```
 

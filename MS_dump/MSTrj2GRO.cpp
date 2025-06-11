@@ -4,9 +4,8 @@
  * Update:
  *   2025.06.08 - Support triclinic system, defcell and coords must be converted.
  *                This conversion matches the export behavior of MS, such as export PDB format.
+ *   2025.06.11 - Support export energy items in .txt format.
  *
- * TODO:
- *   Output temp, pressure, energy, etc. (easy)
  *
  * Materials Studio .trj use below units:
  * All times are in ps.
