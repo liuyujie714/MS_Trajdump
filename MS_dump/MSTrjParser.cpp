@@ -232,7 +232,6 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
     else
     {
         //! read current time and step
-        float f;
         if (!p->do_float(&f)) return TPR_FAILED;
         msg("time= %f\n", f);
         fr.time = f;
@@ -387,7 +386,6 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
 int read_header(const std::unique_ptr<FileSerializer>& p, Parameters& param, PDBInfo& pdb)
 {
     int           idum;
-    unsigned char c;
     unsigned char tag[4];
     unsigned char comments[LENSTR];
 
