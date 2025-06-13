@@ -30,7 +30,7 @@ jobs:
       
       - name: Remove some whl
         run: |
-            sudo rm -rf ./dist/*-linux*.whl *2_*\.*2014*.whl
+            sudo rm -rf ./dist/*-linux*.whl ./dist/*2_*\.*2014*.whl
             ls ./dist
 
       - name: Upload artifact
