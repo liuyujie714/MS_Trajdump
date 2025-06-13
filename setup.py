@@ -5,8 +5,8 @@ import os
 __version__ = '0.1'
 
 src=[
-    'MS_Dump/MSTrjParser.cpp',
-    'MS_Dump/PyModule.cpp',
+    'MS_dump/MSTrjParser.cpp',
+    'MS_dump/PyModule.cpp',
 ]
 
 # tell compiler cpp must need g++
@@ -21,9 +21,11 @@ ext_modules = [
     Pybind11Extension(
         "PyMSDump",
         src, 
-        include_dirs=["MS_Dump", "MS_Dump/eigen-3.3.9"], 
+        include_dirs=["MS_dump", "MS_dump/eigen-3.3.9"], 
         define_macros=[('VERSION_INFO', __version__), 
-                       ('_CRT_SECURE_NO_WARNINGS', 1)],
+                       ('_CRT_SECURE_NO_WARNINGS', 1),
+                       ('Py_GIL_DISABLED', 1), # fix python 3.13.4 bug
+                       ],
         extra_compile_args=LINKERS,
     ),
 ]
