@@ -65,6 +65,17 @@ private:
 };
 
 
+static inline py::list vec_to_list(const std::vector<Vec>& coords)
+{
+    py::list c;
+    for (const auto& vec : coords)
+    {
+        c.append(py::make_tuple(vec.x, vec.y, vec.z));
+    }
+    return c;
+}
+
+
 PYBIND11_MODULE(PyMSDump, m)
 {
     py::class_<Vec>(m, "Vec")
@@ -105,11 +116,24 @@ PYBIND11_MODULE(PyMSDump, m)
              });
 
     py::class_<Frame>(m, "Frame")
-        .def_readonly("coords", &Frame::coords)
-        .def_readonly("velocities", &Frame::velocities)
-        .def_readonly("forces", &Frame::forces)
+        .def_property_readonly("positions", [](const Frame& fr) { return vec_to_list(fr.coords); })
+        .def_property_readonly("velocities",
+                               [](const Frame& fr) { return vec_to_list(fr.velocities); })
+        .def_property_readonly("forces", [](const Frame& fr) { return vec_to_list(fr.forces); })
+        .def_property_readonly("crystal",
+                               [](const Frame& fr)
+                               {
+                                   const PDBCrystal& c = fr.crystal;
+                                   py::list          clist;
+                                   clist.append(c.A);
+                                   clist.append(c.B);
+                                   clist.append(c.C);
+                                   clist.append(c.alpha);
+                                   clist.append(c.beta);
+                                   clist.append(c.gamma);
+                                   return clist;
+                               })
         .def_readonly("box", &Frame::box)
-        .def_readonly("crystal", &Frame::crystal)
         .def_property_readonly(
             "ener",
             [](const Frame& fr)
