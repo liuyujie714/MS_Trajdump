@@ -1,6 +1,6 @@
 from setuptools import setup
 from pybind11.setup_helpers import Pybind11Extension, build_ext
-import os, sys
+import os
 
 __version__ = '0.1'
 
@@ -17,9 +17,6 @@ if os.name == 'posix':
     LINKERS=['-O3', '-std=c++17']
 elif os.name == 'nt':
     LINKERS=['/O2', '-std:c++17']
-    pyver=sys.version_info
-    if pyver.major == 3 and pyver.minor == 13 and pyver.micro == 4:
-        DEFINES.append(('Py_GIL_DISABLED', 1))
 
 ext_modules = [
     Pybind11Extension(

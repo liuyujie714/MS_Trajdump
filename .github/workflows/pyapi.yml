@@ -30,9 +30,9 @@ jobs:
       
       - name: Remove some whl
         run: |
-            rm -rf ./dist/*-linux*.whl *2_*\.*2014*.whl
+            sudo rm -rf ./dist/*-linux*.whl *2_*\.*2014*.whl
             ls ./dist
-            
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -44,7 +44,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13'] 
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13.5', '3.14'] 
 
     steps:
       - name: Check out code
