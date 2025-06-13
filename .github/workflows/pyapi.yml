@@ -26,10 +26,13 @@ jobs:
         run: |
             chmod a+x .github/workflows/build_linux.sh
             docker run --rm -v $(pwd):/io quay.io/pypa/manylinux2014_x86_64 /io/.github/workflows/build_linux.sh
-            rm -rf ./dist/*-linux*.whl *2_*\.*2014*.whl
-            ls ./dist
             echo "Finished!!"
       
+      - name: Remove some whl
+        run: |
+            rm -rf ./dist/*-linux*.whl *2_*\.*2014*.whl
+            ls ./dist
+            
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

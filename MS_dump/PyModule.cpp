@@ -3,13 +3,15 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#define __version__ "0.1"
-
-
 #include <memory>
 
 #include "FileSerializer.h"
 #include "MSTrjParser.h"
+
+#ifndef VERSION_INFO
+#    define VERSION_INFO "0.1"
+#endif // VERSION_INFO
+
 
 namespace py = pybind11;
 
@@ -141,7 +143,7 @@ PYBIND11_MODULE(PyMSDump, m)
 
     py::class_<PyMSDump>(m, "TrajLoad")
         .def(py::init<const char*, const char*>(), py::arg("ftraj"), py::arg("fpdb") = "null")
-        .def("__version__", []() { return __version__; })
+        .def("__version__", []() { return VERSION_INFO; })
         .def("get_params", &PyMSDump::get_params, "get parameters of .trj", py::return_value_policy::reference_internal)
         .def("reset", &PyMSDump::reset, "rest position pointer to header")
         .def("__iter__", &PyMSDump::__iter__, py::return_value_policy::reference_internal)
