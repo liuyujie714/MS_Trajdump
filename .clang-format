@@ -1,6 +1,5 @@
 ---
 Language:        Cpp
-LambdaBodyIndentation: OuterScope
 AccessModifierOffset: -4
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true

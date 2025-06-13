@@ -106,7 +106,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/D_CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:\Users\liuyujie714\Desktop\MS_dump\MS_dump\eigen-3.3.9;C:\Users\liuyujie714\Desktop\MS_dump\MS_dump\xdrfile;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\liuyujie714\AppData\Local\Programs\Python\Python38\include;C:\Users\liuyujie714\Desktop\MS_dump\MS_dump\eigen-3.3.9;C:\Users\liuyujie714\Desktop\MS_dump\MS_dump\xdrfile;C:\Users\liuyujie714\AppData\Local\Programs\Python\Python38\Lib\site-packages\pybind11\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -124,7 +124,7 @@
       <AdditionalOptions>/D_CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\liuyujie714\Desktop\MS_dump\MS_dump\eigen-3.3.9;C:\Users\liuyujie714\Desktop\MS_dump\MS_dump\xdrfile;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\liuyujie714\AppData\Local\Programs\Python\Python38\include;C:\Users\liuyujie714\Desktop\MS_dump\MS_dump\eigen-3.3.9;C:\Users\liuyujie714\Desktop\MS_dump\MS_dump\xdrfile;C:\Users\liuyujie714\AppData\Local\Programs\Python\Python38\Lib\site-packages\pybind11\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,6 +145,7 @@
     <ClCompile Include="xdrfile\xdrfile.c" />
     <ClCompile Include="xdrfile\xdrfile_trr.c" />
     <ClCompile Include="xdrfile\xdrfile_xtc.c" />
+    <ClCompile Include="PyModule.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
