@@ -141,7 +141,8 @@ jobs:
           
       - name: Test Import
         run: |
-          python -c "from PyMSDump import TrajLoad; print(TrajLoad.__version__())"
+          python -c "from PyMSDump_ import TrajLoad; print(TrajLoad.__version__())"
+          python -c "from PyMSDump.MSTrj import MSTrjReader, EnergyType, PressVolType"
         
       - name: Package Linux and Windows artifact to release
         run: |

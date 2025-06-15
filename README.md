@@ -27,7 +27,7 @@
   ```
   pip install xxx.whl
   ```
-  Usage reference: [api_test](https://github.com/liuyujie714/MS_Trajdump/PyMSDump/api_test.py)
+  Usage reference: [api_test](https://github.com/liuyujie714/MS_Trajdump/blob/master/PyMSDump/api_test.py)
   
 
 # Usage
