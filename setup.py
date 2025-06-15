@@ -20,7 +20,7 @@ elif os.name == 'nt':
 
 ext_modules = [
     Pybind11Extension(
-        "PyMSDump",
+        "PyMSDump_",
         src, 
         include_dirs=["MS_dump", "MS_dump/eigen-3.3.9"], 
         define_macros=DEFINES,
@@ -43,6 +43,9 @@ setup(
     long_description=description,
     long_description_content_type="text/markdown",
     ext_modules=ext_modules,
+    py_modules=['PyMSDump.__init__', 
+                'PyMSDump.MSTrj', 
+                ],
     cmdclass={"build_ext": build_ext},
     zip_safe=False,                  # 非压缩文件包
     classifiers=[

@@ -1,5 +1,4 @@
 #include <pybind11/eigen.h>
-#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -9,16 +8,18 @@
 #include "MSTrjParser.h"
 
 #ifndef VERSION_INFO
-#    define VERSION_INFO "0.1"
+#    define VERSION_INFO 0.1
 #endif // VERSION_INFO
+#define xstr(x) #x
+#define to_str(x) xstr(x)
 
 
 namespace py = pybind11;
 
-class PyMSDump
+class PyMSDump_
 {
 public:
-    PyMSDump(const char* ftraj, const char* fpdb = "null") : fpdb_(fpdb), ftraj_(ftraj)
+    PyMSDump_(const char* ftraj, const char* fpdb = "null") : fpdb_(fpdb), ftraj_(ftraj)
     {
         load_file();
     }
@@ -38,7 +39,7 @@ public:
     const Parameters& get_params() const { return param_; }
 
     //< iterator self
-    const PyMSDump& __iter__() { return *this; }
+    const PyMSDump_& __iter__() { return *this; }
 
     //< return next frame
     const Frame& __next__()
@@ -76,7 +77,7 @@ static inline py::list vec_to_list(const std::vector<Vec>& coords)
 }
 
 
-PYBIND11_MODULE(PyMSDump, m)
+PYBIND11_MODULE(PyMSDump_, m)
 {
     py::class_<Vec>(m, "Vec")
         .def(py::init<>())
@@ -165,11 +166,11 @@ PYBIND11_MODULE(PyMSDump, m)
                         + ", time=" + std::to_string(fr.time) + ")";
              });
 
-    py::class_<PyMSDump>(m, "TrajLoad")
+    py::class_<PyMSDump_>(m, "TrajLoad")
         .def(py::init<const char*, const char*>(), py::arg("ftraj"), py::arg("fpdb") = "null")
-        .def("__version__", []() { return VERSION_INFO; })
-        .def("get_params", &PyMSDump::get_params, "get parameters of .trj", py::return_value_policy::reference_internal)
-        .def("reset", &PyMSDump::reset, "rest position pointer to header")
-        .def("__iter__", &PyMSDump::__iter__, py::return_value_policy::reference_internal)
-        .def("__next__", &PyMSDump::__next__, py::return_value_policy::reference_internal);
+        .def("__version__", []() { return to_str(VERSION_INFO); })
+        .def("get_params", &PyMSDump_::get_params, "get parameters of .trj", py::return_value_policy::reference_internal)
+        .def("reset", &PyMSDump_::reset, "reset position pointer to header")
+        .def("__iter__", &PyMSDump_::__iter__, py::return_value_policy::reference_internal)
+        .def("__next__", &PyMSDump_::__next__, py::return_value_policy::reference_internal);
 }

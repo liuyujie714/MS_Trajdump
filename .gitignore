@@ -14,7 +14,7 @@ build/
 dist/
 *.egg*/
 run.sh
-PyTest/
+PyMSDump/test.py
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

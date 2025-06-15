@@ -23,7 +23,11 @@
   ```
   #Time(ps) Temperature(K) Potential(kJ/mol) Kinetic(KJ/mol) TotalEnergy(KJ/mol) Pressure(bar) Volume(A^3)
   ```
-
+* Support .whl for Python API
+  ```
+  pip install xxx.whl
+  ```
+  Usage reference: [api_test](https://github.com/liuyujie714/MS_Trajdump/PyMSDump/api_test.py)
   
 
 # Usage

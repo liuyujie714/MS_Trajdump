@@ -1,0 +1,2 @@
+include PyMSDump/*
+include *.py

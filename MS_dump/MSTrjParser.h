@@ -35,7 +35,9 @@ struct Vec
     double x, y, z;
 };
 
-//! Energy information for MSversion >= 2010
+/* Energy information for MSversion >= 2010
+ * AveXXX means the average value between each frame interval
+ */
 enum EnergyType
 {
     Temp,
