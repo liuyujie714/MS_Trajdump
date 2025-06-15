@@ -33,6 +33,8 @@ def test_write_mda(ftrj:str, fpdb:str, fout:str):
         for ts in trj:
             u.atoms.positions = ts.positions
             u.dimensions = ts.crystal
+            u.trajectory.ts.frame = ts.step
+            u.trajectory.ts.time = ts.time
             w.write(u.atoms)
 
 if __name__ == "__main__":

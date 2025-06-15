@@ -132,6 +132,7 @@ class MSTrjReader:
             nat = len(fr.positions)
             break
         return  nat
+    
     def __iter__(self) -> Iterator[Frame]:
         try:
             for _ in self.trajectory:
@@ -139,18 +140,23 @@ class MSTrjReader:
         finally:
             # always reset pointer to header, such for and break
             self.trajectory.reset()
+
     def __len__(self):
         return len([_ for _ in self.trajectory])
+    
     def __str__(self):
         return  f'Total frames: {len(self)}'
+    
     @property  
     def nframes(self):
         """ @brief Total number of frames """
         return self.nframes_
+    
     @property    
     def natoms(self):
         """ @brief Number of atoms in the trajectory """
         return self.natoms_
+    
 
 if __name__ == '__main__':
     trj = MSTrjReader(sys.argv[1], sys.argv[2])
