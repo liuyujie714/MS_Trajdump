@@ -39,6 +39,8 @@ setup(
     version=__version__,            # 版本号
     author="YujieLiu",
     author_email="",
+    python_requires='>=3.8',
+    install_requires=['numpy'],
     description="A parser for Materials Studio .trj format",
     long_description=description,
     long_description_content_type="text/markdown",

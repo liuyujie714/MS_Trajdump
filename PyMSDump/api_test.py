@@ -24,6 +24,7 @@ def test_vector(ftrj:str, fpdb:str):
             print(ts.velocities)
         if ts.hasF:
             print(ts.forces)
+            
 def test_write_mda(ftrj:str, fpdb:str, fout:str):
     """ @brief Test writing MDAnalysis trajectory from MSTrjReader """
     trj = MSTrjReader(ftrj, fpdb)
