@@ -1,3 +1,8 @@
+/**
+ * Log:
+ *    2025.06.28 - remove get_buffer, avoid cost time for big file
+ */
+
 #ifndef FILESERIALIZER_H
 #define FILESERIALIZER_H
 
@@ -31,7 +36,7 @@ constexpr bool dependent_false = false;
 class FileSerializer
 {
 public:
-    FileSerializer(const char* fname, const char* mode) : m_fname(fname)
+    FileSerializer(const char* fname, const char* mode, bool bswap = true) : m_fname(fname)
     {
         // check file mode, must be binary mode
         char bmode[3] = "xb";
@@ -52,29 +57,26 @@ public:
         if (!m_fp) { THROW_TPR_EXCEPTION("Can not open/write file: " + std::string(fname)); }
 
         // need endianism swap?
-        m_rev = is_litendian();
+        m_rev = bswap ? is_litendian() : false;
         msg("data endian= %s\n", m_rev ? "little" : "big");
 
-        // get all buffer
-        if (m_read) get_buffer();
+        // initial get file size
+        if (m_read)
+        {
+            fseek_(0, SEEK_END); // file end
+            m_fsize = ftell_();
+            fseek_(0, SEEK_SET); // restore
+        }
     }
 
     ~FileSerializer()
     {
-        if (m_buffer) delete[] m_buffer;
         if (m_fp)
         {
             fclose(m_fp);
             m_fp = nullptr;
         }
         // fprintf(stderr, "NOTE) End of %s to %s\n", m_fname.c_str(), m_read ? "read" : "write");
-    }
-
-    //< get a pointer to file char *buffer
-    const char* get_file_buffer(long* fsize) const
-    {
-        *fsize = (long)m_fsize;
-        return m_buffer;
     }
 
     // if is little endian
@@ -167,7 +169,7 @@ public:
     }
 
     // read/write unsigned char, return TPR_SUCCESS if succeed
-    // actually read unsigned int if vergen < 27 and convert to unsigned short
+    // actually read unsigned int if vergen < 27 and convert to unsigned char
     bool do_uchar(unsigned char* val, int vergen = 26) const
     {
         static_assert(sizeof(unsigned char) == 1, "sizeof unsigned char must be 1");
@@ -485,29 +487,11 @@ public:
     }
 
 private:
-    //< get all binary file buffer
-    void get_buffer()
-    {
-        fseek_(0, SEEK_END); // file end
-        m_fsize  = ftell_();
-        m_buffer = new char[m_fsize];
-
-        fseek_(0, SEEK_SET); // file start
-        if (fread_(m_buffer, m_fsize, 1) != 1)
-        {
-            THROW_TPR_EXCEPTION("Can not read all binary stream to m_buffer");
-        }
-        // restore
-        fseek_(0, SEEK_SET);
-    }
-
-private:
-    FILE*       m_fp     = nullptr; //< file pointer
-    std::string m_fname  = {};      //< file name
-    bool        m_read   = true;    //< if read mode
-    bool        m_rev    = false;   //< if Reverse endiannism?
-    char*       m_buffer = nullptr; //< all file binary data in char *
-    int64_t     m_fsize  = 0;       // the file size in char
+    FILE*       m_fp    = nullptr; //< file pointer
+    std::string m_fname = {};      //< file name
+    bool        m_read  = true;    //< if read mode
+    bool        m_rev   = false;   //< if Reverse endiannism?
+    int64_t     m_fsize = 0;       // the file size in char
 };
 
 

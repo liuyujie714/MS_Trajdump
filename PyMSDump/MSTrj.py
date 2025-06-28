@@ -126,6 +126,7 @@ class MSTrjReader:
         self.trajectory = TrajLoad(ftrj, fpdb)
         self.natoms_ = self.__natoms()
         self.nframes_ = self.__len__()
+        
     def __natoms(self):
         nat = 0
         for fr in self:
