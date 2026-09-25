@@ -2,7 +2,7 @@ from setuptools import setup
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 import os
 
-__version__ = '0.1'
+__version__ = '0.1.1'
 
 src=[
     'MS_dump/MSTrjParser.cpp',

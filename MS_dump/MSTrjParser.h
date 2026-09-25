@@ -3,7 +3,9 @@
 
 #include <math.h>
 
+#include <algorithm>
 #include <array>
+#include <iterator>
 #include <map>
 #include <memory>
 #include <string>
@@ -254,13 +256,18 @@ struct Frame
         defcell.setZero();
         box.setZero();
         has_velocity = has_force = false;
+        //! must reset, otherwise a file which does not store them (MSversion 2000
+        //! energies, non-periodic systems) would expose uninitialized memory
+        std::fill(std::begin(ener), std::end(ener), 0.0);
+        std::fill(std::begin(pvol), std::end(pvol), 0.0);
+        std::fill(std::begin(control), std::end(control), 0);
     }
 };
 
 class FileSerializer;
 
-//! read a vector
-void read_vector(const std::unique_ptr<FileSerializer>& p, std::vector<Vec>& vec, const Parameters& param);
+//! read a vector, return false if the file ends in the middle of it
+bool read_vector(const std::unique_ptr<FileSerializer>& p, std::vector<Vec>& vec, const Parameters& param);
 
 //! get atom name from pdb file
 PDBInfo read_pdb(const char* fpdb);

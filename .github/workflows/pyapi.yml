@@ -5,81 +5,56 @@ on:
     branches:
       - master
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  Ubuntu:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.8'
-
-      - name: Install Docker
-        run: |
-          sudo apt-get update
-
-      - name: Build manylinux wheel
-        run: |
-            chmod a+x .github/workflows/build_linux.sh
-            docker run --rm -v $(pwd):/io quay.io/pypa/manylinux2014_x86_64 /io/.github/workflows/build_linux.sh
-            echo "Finished!!"
-      
-      - name: Remove some whl
-        run: |
-            sudo rm -rf ./dist/*-linux*.whl ./dist/*2_*\.*2014*.whl
-            ls ./dist
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Linux_wheels
-          path: ./dist/*.whl
-
-
-  Windows:
-    runs-on: windows-latest
+  Build_Wheels:
+    runs-on: ${{ matrix.buildplat[0] }}
+    timeout-minutes: 15
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13.5'] 
+        buildplat:
+          - [ubuntu-22.04, manylinux_x86_64, x86_64]
+          #- [macos-13, macosx_*, x86_64]
+          - [windows-2022, win_amd64, AMD64]
+          #- [macos-14, macosx_*, arm64]
+        python: ["cp38", "cp39", "cp310", "cp311", "cp312", "cp313", "cp314"]
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v3.3.0
+        env:
+          CIBW_BUILD: ${{ matrix.python }}-${{ matrix.buildplat[1] }}
+          CIBW_ARCHS: ${{ matrix.buildplat[2] }}
+          CIBW_BUILD_VERBOSITY: 1
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install setuptools wheel pybind11
-
-      - name: Build Windows wheel
-        run: |
-          python setup.py bdist_wheel
-
-      - name: Upload Windows artifacts
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Windows_wheels-${{matrix.python-version}}
-          path: ./dist/*.whl
-  
+          name: wheel-${{ matrix.buildplat[0] }}-${{ matrix.python }}
+          path: wheelhouse/*.whl
+          retention-days: 7
+
+
   # refer to https://github.com/endless-sky/endless-sky/blob/master/.github/workflows/cd.yaml
   Release:
-    needs: [Ubuntu, Windows]
+    needs: [Build_Wheels]
     runs-on: ubuntu-latest
+
+    permissions:
+        id-token: write
+        contents: write
 
     env:
         RELEASE_COMMAND: release
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         RELEASE_TAG: bleed
-        OUTPUT_TAR: MSDump_Wheels.tar.gz
+        OUTPUT_TAR: GauChkParser_Python_Whl.tar.gz
 
     steps:
       - uses: actions/checkout@v4
@@ -89,7 +64,7 @@ jobs:
           go install github.com/github-release/github-release@latest
           echo "GOPATH=$(go env GOPATH)" >> $GITHUB_ENV
           echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
-      
+
       - name: Set environment variables
         run: |
           echo "RELEASE_TAG=bleed" >> $GITHUB_ENV
@@ -101,7 +76,7 @@ jobs:
         run: |
           git tag --force ${{ env.RELEASE_TAG }} ${{ github.sha }}
           git push --tags --force
-      
+
       - name: Check continuous release status
         run: |
           if ! github-release info -t ${{ env.RELEASE_TAG }} > /dev/null 2>&1; then
@@ -109,25 +84,21 @@ jobs:
           else
             echo "RELEASE_COMMAND=edit" >> $GITHUB_ENV
           fi
-      
+
       - name: Setup continuous release
         run: |
           DESCRIPTION="Triggered on $(date -u '+%Y/%m/%d, %H:%M') UTC by commit ${{ github.sha }} (@${{ github.actor }})
           This is an automated build of the latest source. It may be unstable or even crash, corrupt your save or eat your kitten. Use with caution!
           https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          
-          github-release ${{env.RELEASE_COMMAND}} --tag ${{ env.RELEASE_TAG }} --name "Latest Bleed Release" --description "$DESCRIPTION" --pre-release
-      
-      - name: Download Ubuntu artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: Linux_wheels
 
-      - name: Download Windows artifact
+          github-release ${{env.RELEASE_COMMAND}} --tag ${{ env.RELEASE_TAG }} --name "Latest Bleed Release" --description "$DESCRIPTION" --pre-release
+
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          pattern: Windows_wheels-*
+          pattern: wheel-*
           merge-multiple: true
+          path: dist/
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -136,15 +107,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          ls -alt
-          pip install *-cp38-cp38-manylinux*.whl
-          
-      - name: Test Import
-        run: |
-          python -c "from PyMSDump_ import TrajLoad; print(TrajLoad.__version__())"
-          python -c "from PyMSDump.MSTrj import MSTrjReader, EnergyType, PressVolType"
-        
+          ls -alt dist/
+          pip install dist/*-cp38-cp38-manylinux*.whl
+
       - name: Package Linux and Windows artifact to release
         run: |
-          tar -czvf ${{env.OUTPUT_TAR}} *.whl
+          tar -czvf ${{env.OUTPUT_TAR}} dist/*.whl
           github-release upload --tag ${{ env.RELEASE_TAG }} --replace --name ${{env.OUTPUT_TAR}} --file ${{env.OUTPUT_TAR}}

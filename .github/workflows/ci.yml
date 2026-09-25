@@ -30,7 +30,7 @@ jobs:
           path: ./MS_dump/MS_dump
 
   Mingw64Build:
-    runs-on: windows-2019
+    runs-on: windows-2022
       
     steps:
       - name: git source

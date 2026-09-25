@@ -17,6 +17,33 @@ constexpr int ORTH_BOX = 3;
 constexpr int TRIC_BOX = 9;
 constexpr int NO_BOX   = 0;
 
+//! how many bytes are left in the file, used to check counts read from the file
+static inline int64_t remaining_bytes(const std::unique_ptr<FileSerializer>& p)
+{
+    return p->get_fsize() - p->ftell_();
+}
+
+/*! \brief read an item count and check it against the remaining file size
+ * \param[out] count: value read from the file
+ * \param[in] item_size: bytes of one item, 1 for a byte array
+ * \param[in] what: item name, for error message
+ * \return true if the count is valid
+ */
+static inline bool read_count(const std::unique_ptr<FileSerializer>& p,
+                              int*                                   count,
+                              int64_t                                item_size,
+                              const char*                            what)
+{
+    if (!p->do_int(count)) return false;
+
+    if (*count < 0 || (int64_t)*count * item_size > remaining_bytes(p))
+    {
+        fprintf(stderr, "Error! Invalid %s (%d) in .trj header\n", what, *count);
+        return false;
+    }
+    return true;
+}
+
 constexpr double DEG2RAD(double deg)
 {
     return deg * 3.14159265358979323 / 180.0;
@@ -117,35 +144,33 @@ static inline int pdb_to_gro(const PDBCrystal& crystal, Matrix& box)
 }
 
 //! read a vector
-void read_vector(const std::unique_ptr<FileSerializer>& p, std::vector<Vec>& vec, const Parameters& param)
+bool read_vector(const std::unique_ptr<FileSerializer>& p, std::vector<Vec>& vec, const Parameters& param)
 {
     vec.resize(param.moved_natoms);
-    float     f;
     const int prec = (param.is_double() ? sizeof(double) : sizeof(float));
 
-    for (int j = 0; j < param.moved_natoms; j++)
+    //! one record for each component (x, y, z), each one holds all atoms
+    for (int comp = 0; comp < 3; comp++)
     {
-        p->do_real(&f, prec);
-        vec[j].x = f;
-    }
-    //! skip 8 bytes
-    p->fseek_(8L, SEEK_CUR);
+        for (int j = 0; j < param.moved_natoms; j++)
+        {
+            //! NOTE: read as double to keep the full precision of .trj files
+            //! written with 8 byte real (MSversion >= 2010)
+            double val = 0;
+            if (!p->do_real(&val, prec)) return TPR_FAILED;
 
-    for (int j = 0; j < param.moved_natoms; j++)
-    {
-        p->do_real(&f, prec);
-        vec[j].y = f;
+            switch (comp)
+            {
+                case 0: vec[j].x = val; break;
+                case 1: vec[j].y = val; break;
+                default: vec[j].z = val; break;
+            }
+        }
+        //! skip 8 bytes: trailer of this record + head of the next one
+        p->fseek_(8L, SEEK_CUR);
     }
-    //! skip 8 bytes
-    p->fseek_(8L, SEEK_CUR);
 
-    for (int j = 0; j < param.moved_natoms; j++)
-    {
-        p->do_real(&f, prec);
-        vec[j].z = f;
-    }
-    //! skip 8 bytes
-    p->fseek_(8L, SEEK_CUR);
+    return TPR_SUCCESS;
 }
 
 //! get atom name from pdb file
@@ -165,6 +190,13 @@ PDBInfo read_pdb(const char* fpdb)
     {
         if (line.substr(0, 6) == "ATOM  " || line.substr(0, 6) == "HETATM")
         {
+            //! an ATOM/HETATM record ends at column 54, a shorter line is broken
+            if (line.size() < 54)
+            {
+                fprintf(stderr, "Warning! Skip a broken ATOM record in %s\n", fpdb);
+                continue;
+            }
+
             // get atomname and remove space
             std::istringstream s(line.substr(12, 4));
             s >> name;
@@ -207,20 +239,20 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
 
         for (int j = 0; j < EnergyType::NR_Ene; j++)
         {
-            p->do_double(&d);
+            if (!p->do_double(&d)) return TPR_FAILED;
             fr.ener[j] = d;
             msg("Energy= %f\n", d);
         }
-        //! additional 1 double
+        //! additional 1 double, only for MSversion 3000
         if (param.MSversion > 2010)
         {
-            p->do_double(&d);
-            msg("Energy= %f\n", d);
+            if (!p->do_double(&d)) return TPR_FAILED;
+            msg("Energy(extra)= %f\n", d);
         }
 
         for (int j = 0; j < ControlType::NR_Control; j++)
         {
-            p->do_int(&idum);
+            if (!p->do_int(&idum)) return TPR_FAILED;
             fr.control[j] = idum;
             msg("Control= %d\n", idum);
         }
@@ -239,31 +271,34 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
         msg("step= %d\n", idum);
         fr.step = idum;
 
+        //! energy items of MSversion 2000 are not stored, they use another
+        //! convention than the one of MSversion >= 2010 (see EnergyType)
         for (int j = 0; j < 33; j++)
         {
-            p->do_float(&f);
-            msg("Energy= %f\n", d);
+            if (!p->do_float(&f)) return TPR_FAILED;
+            msg("Energy= %f\n", f);
         }
         for (int j = 0; j < 5; j++)
         {
-            p->do_int(&idum);
+            if (!p->do_int(&idum)) return TPR_FAILED;
+            fr.control[j] = idum;
             msg("Control= %d\n", idum);
-            //! velocity flag position index
-            if (j == 2) { fr.has_velocity = (idum > 0); }
         }
 
+        fr.has_velocity = (fr.control[ControlType::VelocityWritten] > 0);
+        //! MSversion 2000 does not write forces
         fr.has_force = false;
     }
 
-    //! skip 8 bytes
+    //! skip 8 bytes: trailer of this record + head of the next one
     p->fseek_(8L, SEEK_CUR);
 
     //! Pressure volume information : 12 real
     for (int j = 0; j < PressVolType::NR_PressVol; j++)
     {
-        p->do_real(&f, prec);
-        fr.pvol[j] = f;
-        msg("Pressure= %f\n", f);
+        if (!p->do_real(&d, prec)) return TPR_FAILED;
+        fr.pvol[j] = d;
+        msg("Pressure= %f\n", d);
     }
 
     //! skip 8 bytes
@@ -271,8 +306,8 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
 
     //! if exist, has 4 real
     /*
-    snose	real*8	Value for Nos¨¦ heat bath variable
-    snoseh	real*8	Half step value for Nos¨¦ heat bath variable
+    snose	real*8	Value for Nosï¿½ï¿½ heat bath variable
+    snoseh	real*8	Half step value for Nosï¿½ï¿½ heat bath variable
     dssdot	real*8	Time derivative of the snoseh variable at full step
     dqcanonNose	real*8	Mass like variable for canonical dynamics
     */
@@ -280,8 +315,8 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
     {
         for (int j = 0; j < 4; j++)
         {
-            p->do_real(&f, prec);
-            msg("Canonical param= %f\n", f);
+            if (!p->do_real(&d, prec)) return TPR_FAILED;
+            msg("Canonical param= %f\n", d);
         }
 
         //! skip 8 bytes
@@ -292,14 +327,15 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
     int boxType = NO_BOX;
     if (param.PeriodicType > 0)
     {
-        std::vector<float> DefCell(22);
-        p->do_vector(DefCell.data(), (int)DefCell.size(), prec, version);
+        std::vector<double> DefCell(22);
+        if (!p->do_vector(DefCell.data(), (int)DefCell.size(), prec, version)) return TPR_FAILED;
         for (size_t i = 0; i < DefCell.size(); i++)
         {
             msg("DefCell= %f\n", DefCell[i]);
         }
 
-        // if (param.DefCel)
+        //! NOTE: the cell is always written if the system is periodic,
+        //! param.DefCel only tells if the cell is allowed to move
         {
             fr.defcell.setZero(); //! clear zero
             //! Note: start from index 2
@@ -324,12 +360,12 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
     //! Periodic information, 1 int+14 real
     if (param.PeriodicType > 0)
     {
-        p->do_int(&idum);
+        if (!p->do_int(&idum)) return TPR_FAILED;
         msg("idum= %d\n", idum);
         for (int j = 0; j < 14; j++)
         {
-            p->do_real(&f, prec);
-            msg("Period= %f\n", f);
+            if (!p->do_real(&d, prec)) return TPR_FAILED;
+            msg("Period= %f\n", d);
         }
 
         //! skip 8 bytes
@@ -341,8 +377,8 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
     {
         for (int j = 0; j < 3; j++)
         {
-            p->do_real(&f, prec);
-            msg("NpTCanon= %f\n", f);
+            if (!p->do_real(&d, prec)) return TPR_FAILED;
+            msg("NpTCanon= %f\n", d);
         }
 
         //! skip 8 bytes
@@ -352,32 +388,32 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
     //! Temperature damping
     if (param.TempDamping)
     {
-        p->do_real(&f, prec);
-        msg("TempDamp= %f\n", f);
+        if (!p->do_real(&d, prec)) return TPR_FAILED;
+        msg("TempDamp= %f\n", d);
 
         //! skip 8 bytes
         p->fseek_(8L, SEEK_CUR);
     }
 
     //! atom coords
+    if (!read_vector(p, fr.coords, param)) return TPR_FAILED;
+
+    //! must convert coords for triclin system
+    if (boxType != NO_BOX)
     {
-        read_vector(p, fr.coords, param);
-        //! must convert coords for triclin system
-        if (boxType != NO_BOX)
+        //! the decomposition is the same for all atoms, build it only once
+        const Eigen::ColPivHouseholderQR<Matrix> qr(fr.defcell);
+        for (auto& coord : fr.coords)
         {
-            for (auto& coord : fr.coords)
-            {
-                Eigen::Vector3d frac =
-                    fr.defcell.colPivHouseholderQr().solve(Eigen::Vector3d(coord.x, coord.y, coord.z));
-                Eigen::Vector3d xyz = fr.box.transpose() * frac;
-                coord               = Vec(xyz.x(), xyz.y(), xyz.z());
-            }
+            Eigen::Vector3d frac = qr.solve(Eigen::Vector3d(coord.x, coord.y, coord.z));
+            Eigen::Vector3d xyz  = fr.box.transpose() * frac;
+            coord                = Vec(xyz.x(), xyz.y(), xyz.z());
         }
     }
 
-    if (fr.has_velocity) { read_vector(p, fr.velocities, param); }
+    if (fr.has_velocity && !read_vector(p, fr.velocities, param)) return TPR_FAILED;
 
-    if (fr.has_force) { read_vector(p, fr.forces, param); }
+    if (fr.has_force && !read_vector(p, fr.forces, param)) return TPR_FAILED;
 
     return TPR_SUCCESS;
 }
@@ -391,13 +427,13 @@ int read_header(const std::unique_ptr<FileSerializer>& p, Parameters& param, PDB
 
     //! 'T'
     {
-        p->do_vector(tag, 4, 4, version);
+        if (!p->do_vector(tag, 4, 4, version)) return -1;
         msg("tag= %c\n", tag[3]);
     }
 
     //! Trajectory type
     {
-        p->do_vector(param.trajType, 4, 4, version);
+        if (!p->do_vector(param.trajType, 4, 4, version)) return -1;
         param.trajType[4] = '\0';
         msg("TrajType= %s\n", param.trajType);
     }
@@ -405,7 +441,7 @@ int read_header(const std::unique_ptr<FileSerializer>& p, Parameters& param, PDB
     //! MS version
     //! This should be either 3000, 2010 or 2000
     {
-        p->do_int(&idum);
+        if (!p->do_int(&idum)) return -1;
         msg("idum= %d\n", idum);
         if (idum != 3000 && idum != 2010 && idum != 2000)
         {
@@ -416,25 +452,25 @@ int read_header(const std::unique_ptr<FileSerializer>& p, Parameters& param, PDB
 
         //! int  * 19
         std::vector<int> temp(19);
-        p->do_vector(temp.data(), (int)temp.size(), 4, version);
+        if (!p->do_vector(temp.data(), (int)temp.size(), 4, version)) return -1;
     }
 
     //! 8 bytes
     {
-        p->do_vector(tag, 4, 4, version);
+        if (!p->do_vector(tag, 4, 4, version)) return -1;
         msg("tag= %c\n", tag[3]);
-        p->do_vector(tag, 4, 4, version);
+        if (!p->do_vector(tag, 4, 4, version)) return -1;
         msg("tag= %c\n", tag[3]);
     }
 
     // (COMMENT:)
     {
         //! int (number of Comments:)
-        p->do_int(&idum);
+        if (!read_count(p, &idum, LENSTR, "number of comments")) return -1;
         msg("No Comments= %d\n", idum);
         for (int i = 0; i < idum; i++)
         {
-            p->do_vector(comments, LENSTR, 4, version);
+            if (!p->do_vector(comments, LENSTR, 4, version)) return -1;
             msg("COMMENT= %s\n", comments);
         }
 
@@ -444,11 +480,11 @@ int read_header(const std::unique_ptr<FileSerializer>& p, Parameters& param, PDB
 
     //! EEX comment
     {
-        p->do_int(&idum);
+        if (!read_count(p, &idum, LENSTR, "number of EEX comments")) return -1;
         msg("No EEX Comments= %d\n", idum);
         for (int i = 0; i < idum; i++)
         {
-            p->do_vector(comments, LENSTR, 4, version);
+            if (!p->do_vector(comments, LENSTR, 4, version)) return -1;
             msg("EEX COMMENT= %s\n", (char*)comments);
         }
 
@@ -458,62 +494,70 @@ int read_header(const std::unique_ptr<FileSerializer>& p, Parameters& param, PDB
 
     {
         //! PeriodicType
-        p->do_int(&idum);
+        if (!p->do_int(&idum)) return -1;
         msg("Periodicity= %d\n", idum);
+        if (idum < 0 || idum > 3)
+        {
+            fprintf(stderr, "Warning! Periodic type should be 0-3, but get %d\n", idum);
+        }
         param.PeriodicType = idum;
         //! MolXtl
-        p->do_int(&idum);
+        if (!p->do_int(&idum)) return -1;
         msg("MolXtl= %d\n", idum);
         param.MolXtl = I2Bool(idum);
-        p->do_int(&idum);
+        if (!p->do_int(&idum)) return -1;
         msg("Canonical= %d\n", idum);
         param.Canonical = I2Bool(idum);
-        p->do_int(&idum);
+        if (!p->do_int(&idum)) return -1;
         msg("DefCel= %d\n", idum);
         param.DefCel = I2Bool(idum);
-        p->do_int(&idum);
+        if (!p->do_int(&idum)) return -1;
         msg("PertTheory= %d\n", idum);
         param.PertTheory = I2Bool(idum);
-        p->do_int(&idum);
+        if (!p->do_int(&idum)) return -1;
         msg("NoseOrHoover= %d\n", idum);
         param.NoseOrHoover = I2Bool(idum);
-        p->do_int(&idum);
+        if (!p->do_int(&idum)) return -1;
         msg("NpTCanon= %d\n", idum);
         param.NpTCanon = I2Bool(idum);
-        p->do_int(&idum);
+        if (!p->do_int(&idum)) return -1;
         msg("TempDamping= %d\n", idum);
         param.TempDamping = I2Bool(idum);
 
         //! skip 8 bytes
         p->fseek_(8L, SEEK_CUR);
 
-        //! Number of files containing movable atoms
-        p->do_int(&param.nflusd);
+        //! Number of files containing movable atoms, and how many atoms they
+        //! have. Note that both atom numbers are system wide, only the file
+        //! descriptor (the file name, 8 bytes) is stored for each file.
+        if (!p->do_int(&param.nflusd)) return -1;
         msg("FilNum= %d\n", param.nflusd);
-        param.total_natoms = 0;
-        for (int i = 0; i < param.nflusd; i++)
-        {
-            //! Number of movable atoms in the file
-            p->do_int(&idum);
-            msg("idum= %d for file %d\n", idum, i);
-
-            //! Total number of atoms in the file
-            p->do_int(&idum);
-            param.total_natoms += idum;
-            msg("idum= %d for file %d\n", idum, i);
-
-            //! File descriptor, 8 bytes
-            p->fseek_(8L, SEEK_CUR);
-
-            //! 8 bytes space
-            p->fseek_(8L, SEEK_CUR);
-        }
+        if (!p->do_int(&idum)) return -1;
+        msg("Moveable atoms= %d\n", idum);
+        const int nmove = idum;
+        if (!p->do_int(&param.total_natoms)) return -1;
         msg("Total atoms= %d\n", param.total_natoms);
 
-        //! Number of movable atoms in the file
-        p->do_int(&idum);
+        //! one 8 byte descriptor for each file
+        if (param.nflusd < 0 || 8L * param.nflusd > remaining_bytes(p)) return -1;
+        p->fseek_(8L * param.nflusd, SEEK_CUR);
+
+        //! skip 8 bytes: trailer of this record + head of the next one
+        p->fseek_(8L, SEEK_CUR);
+
+        //! Number of movable atoms, the count of the atom id list below
+        if (!p->do_int(&idum)) return -1;
         msg("Total move atoms= %d\n", idum);
         param.moved_natoms = idum;
+
+        if (param.moved_natoms != nmove)
+        {
+            fprintf(stderr,
+                    "Warning! Number of movable atoms is not consistent in "
+                    ".trj (%d<->%d)\n",
+                    param.moved_natoms,
+                    nmove);
+        }
     }
 
     //! check atoms number
@@ -557,9 +601,20 @@ int read_header(const std::unique_ptr<FileSerializer>& p, Parameters& param, PDB
 
     //! only move atom ids (1-based)
     {
+        if (param.moved_natoms < 0 || (int64_t)param.moved_natoms * 4 > remaining_bytes(p))
+            return -1;
+
         for (int j = 0; j < param.moved_natoms; j++)
         {
-            p->do_int(&idum); // global pdb atom id (1-based)
+            if (!p->do_int(&idum)) return -1; // global pdb atom id (1-based)
+            if (idum < 1 || idum > param.total_natoms)
+            {
+                fprintf(stderr,
+                        "Error! Atom id of .trj is out of range. (%d not in 1-%d)\n",
+                        idum,
+                        param.total_natoms);
+                return -1;
+            }
             param.atomMapToPDB[j]         = idum - 1;
             param.atomMapToMove[idum - 1] = j;
             msg("move atom id= %d\n", idum);
@@ -571,11 +626,11 @@ int read_header(const std::unique_ptr<FileSerializer>& p, Parameters& param, PDB
 
     //! skip EEX title
     {
-        p->do_int(&param.nEEXtitle);
+        if (!read_count(p, &param.nEEXtitle, 1, "EEX title length")) return -1;
         msg("nEEXtitle= %d\n", param.nEEXtitle);
         //! Complete directory specification and filename of energy expression file used for generating this trajectory
         std::vector<unsigned char> descrip(param.nEEXtitle + 1);
-        p->do_vector(descrip.data(), param.nEEXtitle, 4, version);
+        if (!p->do_vector(descrip.data(), param.nEEXtitle, 4, version)) return -1;
         descrip.back() = '\0';
         msg("EEX title= %s\n", descrip.data());
 
@@ -585,9 +640,9 @@ int read_header(const std::unique_ptr<FileSerializer>& p, Parameters& param, PDB
 
     //! Pair Title
     {
-        p->do_int(&idum);
+        if (!read_count(p, &idum, 1, "parameter file name length")) return -1;
         std::vector<unsigned char> descrip(idum + 1);
-        p->do_vector(descrip.data(), idum, 4, version);
+        if (!p->do_vector(descrip.data(), idum, 4, version)) return -1;
         descrip.back() = '\0';
         msg("Parameter File= %s\n", descrip.data());
 
@@ -600,3 +655,4 @@ int read_header(const std::unique_ptr<FileSerializer>& p, Parameters& param, PDB
 
     return 0;
 }
+

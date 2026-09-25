@@ -303,6 +303,29 @@ public:
         return TPR_SUCCESS;
     }
 
+    //< read/write double according to given prec (4/8)
+    //< NOTE: val must be double * type, used to keep full precision of double files
+    bool do_real(double* val, int prec) const
+    {
+        switch (prec)
+        {
+            case sizeof(float):
+            {
+                float f = static_cast<float>(*val);
+                if (!do_float(&f)) return TPR_FAILED;
+                if (m_read) { *val = static_cast<double>(f); }
+                break;
+            }
+            case sizeof(double):
+            {
+                if (!do_double(val)) return TPR_FAILED;
+                break;
+            }
+            default: THROW_TPR_EXCEPTION("Can not support precision= " + std::to_string(prec));
+        }
+        return TPR_SUCCESS;
+    }
+
     //< read/write bool, unsigned char, int, int64_t, float, double, ... in vector with len
     template<typename T>
     bool do_vector(T* arr, int len, int prec = 4, int vergen = 26) const

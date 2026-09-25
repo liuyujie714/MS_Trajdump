@@ -124,14 +124,14 @@
       <AdditionalOptions>/D_CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\liuyujie714\AppData\Local\Programs\Python\Python38\include;.\eigen-3.3.9;.\xdrfile;C:\Users\liuyujie714\AppData\Local\Programs\Python\Python38\Lib\site-packages\pybind11\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\liuyujie714\AppData\Local\Programs\Python\Python310\include;.\eigen-3.3.9;.\xdrfile;C:\Users\liuyujie714\AppData\Local\Programs\Python\Python310\Lib\site-packages\pybind11\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>C:\Users\liuyujie714\AppData\Local\Programs\Python\Python38\libs\python38.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\liuyujie714\AppData\Local\Programs\Python\Python310\libs\python310.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
