@@ -8,7 +8,7 @@
 #include "MSTrjParser.h"
 
 #ifndef VERSION_INFO
-#    define VERSION_INFO 0.1
+#    define VERSION_INFO 0.1.2
 #endif // VERSION_INFO
 #define xstr(x) #x
 #define to_str(x) xstr(x)

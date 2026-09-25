@@ -29,10 +29,8 @@ static inline int64_t remaining_bytes(const std::unique_ptr<FileSerializer>& p)
  * \param[in] what: item name, for error message
  * \return true if the count is valid
  */
-static inline bool read_count(const std::unique_ptr<FileSerializer>& p,
-                              int*                                   count,
-                              int64_t                                item_size,
-                              const char*                            what)
+static inline bool
+read_count(const std::unique_ptr<FileSerializer>& p, int* count, int64_t item_size, const char* what)
 {
     if (!p->do_int(count)) return false;
 
@@ -421,9 +419,9 @@ bool read_frame(const std::unique_ptr<FileSerializer>& p, const Parameters& para
 
 int read_header(const std::unique_ptr<FileSerializer>& p, Parameters& param, PDBInfo& pdb)
 {
-    int           idum;
-    unsigned char tag[4];
-    unsigned char comments[LENSTR];
+    int                        idum;
+    unsigned char              tag[4];
+    std::vector<unsigned char> comments(LENSTR);
 
     //! 'T'
     {
@@ -468,10 +466,11 @@ int read_header(const std::unique_ptr<FileSerializer>& p, Parameters& param, PDB
         //! int (number of Comments:)
         if (!read_count(p, &idum, LENSTR, "number of comments")) return -1;
         msg("No Comments= %d\n", idum);
+        comments.assign(LENSTR, '\0');
         for (int i = 0; i < idum; i++)
         {
-            if (!p->do_vector(comments, LENSTR, 4, version)) return -1;
-            msg("COMMENT= %s\n", comments);
+            if (!p->do_vector(comments.data(), LENSTR, 4, version)) return -1;
+            msg("COMMENT= %s\n", (char*)comments.data());
         }
 
         //! skip 8 bytes
@@ -482,10 +481,11 @@ int read_header(const std::unique_ptr<FileSerializer>& p, Parameters& param, PDB
     {
         if (!read_count(p, &idum, LENSTR, "number of EEX comments")) return -1;
         msg("No EEX Comments= %d\n", idum);
+        comments.assign(LENSTR, '\0');
         for (int i = 0; i < idum; i++)
         {
-            if (!p->do_vector(comments, LENSTR, 4, version)) return -1;
-            msg("EEX COMMENT= %s\n", (char*)comments);
+            if (!p->do_vector(comments.data(), LENSTR, 4, version)) return -1;
+            msg("EEX COMMENT= %s\n", (char*)comments.data());
         }
 
         //! skip 8 bytes
@@ -655,4 +655,3 @@ int read_header(const std::unique_ptr<FileSerializer>& p, Parameters& param, PDB
 
     return 0;
 }
-

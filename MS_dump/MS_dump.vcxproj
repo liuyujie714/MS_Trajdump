@@ -106,11 +106,12 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/D_CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:\Users\liuyujie714\AppData\Local\Programs\Python\Python38\include;.\eigen-3.3.9;.\xdrfile;C:\Users\liuyujie714\AppData\Local\Programs\Python\Python38\Lib\site-packages\pybind11\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\liuyujie714\AppData\Local\Programs\Python\Python310\include;.\eigen-3.3.9;.\xdrfile;C:\Users\liuyujie714\AppData\Local\Programs\Python\Python310\Lib\site-packages\pybind11\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>C:\Users\liuyujie714\AppData\Local\Programs\Python\Python310\libs\python310.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

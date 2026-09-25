@@ -23,7 +23,19 @@
   ```
   #Time(ps) Temperature(K) Potential(kJ/mol) Kinetic(KJ/mol) TotalEnergy(KJ/mol) Pressure(bar) Volume(A^3)
   ```
+  
+* Support export `.xvg` format (same as gromacs xvg) which contains your selected items.
+
+  ```
+  ./MS_dump -s system.pdb -f system.trj -o energy.xvg
+  ```
+
+  Then, selected group number to export. Temperature in `K`, Energy in `kJ/mol`, Press in `bar`, Volume in $\AA^3$, Rg in $\AA$.
+
+  
+
 * Support Python API
+  
   ```
   pip install PyMSDump
   ```
