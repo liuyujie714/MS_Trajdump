@@ -54,7 +54,7 @@ jobs:
         RELEASE_COMMAND: release
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         RELEASE_TAG: bleed
-        OUTPUT_TAR: GauChkParser_Python_Whl.tar.gz
+        OUTPUT_TAR: MSDump_Wheels.tar.gz
 
     steps:
       - uses: actions/checkout@v4
