@@ -30,9 +30,7 @@
   ./MS_dump -s system.pdb -f system.trj -o energy.xvg
   ```
 
-  Then, selected group number to export. Temperature in `K`, Energy in `kJ/mol`, Press in `bar`, Volume in $\AA^3$, Rg in $\AA$.
-
-  
+  Then, selected group number to export. Temperature in `K`, Energy in `kJ/mol`, Press in `bar`, Volume in $Å^3$, Rg in Å.
 
 * Support Python API
   
