@@ -23,9 +23,9 @@
   ```
   #Time(ps) Temperature(K) Potential(kJ/mol) Kinetic(KJ/mol) TotalEnergy(KJ/mol) Pressure(bar) Volume(A^3)
   ```
-* Support .whl for Python API
+* Support Python API
   ```
-  pip install xxx.whl
+  pip install PyMSDump
   ```
   Usage reference: [api_test](https://github.com/liuyujie714/MS_Trajdump/blob/master/PyMSDump/api_test.py)
   

@@ -105,12 +105,43 @@ jobs:
         with:
           python-version: '3.8'
 
+      - name: Upload to PyPI
+        if: contains(github.event.head_commit.message, '[pypi]')
+        uses: pypa/gh-action-pypi-publish@release/v1.12
+
       - name: Install dependencies
         run: |
-          ls -alt dist/
+          ls -alt
           pip install dist/*-cp38-cp38-manylinux*.whl
 
       - name: Package Linux and Windows artifact to release
         run: |
-          tar -czvf ${{env.OUTPUT_TAR}} dist/*.whl
-          github-release upload --tag ${{ env.RELEASE_TAG }} --replace --name ${{env.OUTPUT_TAR}} --file ${{env.OUTPUT_TAR}}
+          mkdir -p release
+          tar -czvf release/${{env.OUTPUT_TAR}} dist/*.whl
+          github-release upload --tag ${{ env.RELEASE_TAG }} --replace --name ${{env.OUTPUT_TAR}} --file release/${{env.OUTPUT_TAR}}
+
+
+  # Calling the publish-action twice in the same job is not supported:
+  # https://github.com/pypa/gh-action-pypi-publish/issues/352
+  release-TestPyPi:
+    needs: [Build_Wheels]
+    if: contains(github.event.head_commit.message, '[pypi]')
+    runs-on: ubuntu-latest
+
+    permissions:
+        id-token: write
+        contents: write
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wheel-*
+          merge-multiple: true
+          path: dist/
+
+      - name: Upload to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1.12
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
