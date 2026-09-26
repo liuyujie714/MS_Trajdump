@@ -18,7 +18,7 @@
 
   > Note that fixed atoms will have zero velocity and force, meaning their coordinates/velocity/force data won't appear in the `.trj` file.
 
-* Support export `.txt` format (`Plain text file`) which contains all kinds of energy items and others:
+* Support export `.txt` format (`Plain text file`) which contains some energy items and others:
 
   ```
   #Time(ps) Temperature(K) Potential(kJ/mol) Kinetic(KJ/mol) TotalEnergy(KJ/mol) Pressure(bar) Volume(A^3)
@@ -27,7 +27,7 @@
 * Support export `.xvg` format (same as gromacs xvg) which contains your selected items.
 
   ```
-  ./MS_dump -s system.pdb -f system.trj -o energy.xvg
+  ./MS_dump -f system.trj -o energy.xvg
   ```
 
   Then, selected group number to export. Temperature in `K`, Energy in `kJ/mol`, Press in `bar`, Volume in $Å^3$, Rg in Å.
@@ -72,8 +72,6 @@ Default output `MS_traj.xyz`, the comment line has box information that can be r
 
 
 
-
-
 **Note:**
 
 > The exported xyz will use `C` name for all atoms if not provide pdb file, such as:
@@ -84,13 +82,11 @@ Default output `MS_traj.xyz`, the comment line has box information that can be r
 
 
 
-
-
 `-o` option can control output format
 
 
 
-If you want to export `.xtc/.trr` of gromacs, use command:
+* If you want to export `.xtc/.trr` of gromacs, use command:
 
 ```
 .\MS_dump.exe -s system.pdb -f system.trj -o system.xtc
@@ -102,9 +98,17 @@ If you want to export `.xtc/.trr` of gromacs, use command:
 
 
 
-Also export energy items:
+* Also export energy items:
 
 ```
 .\MS_dump.exe -f system.trj -o energy.txt
+```
+
+
+
+* Export data in interactive mode:
+
+```
+.\MS_dump.exe -f system.trj -o energy.xvg
 ```
 

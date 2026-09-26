@@ -503,7 +503,7 @@ int XVGExport::run()
     ofs << "@    yaxis  label \"Value\"\n";
     ofs << "@TYPE xy\n";
     ofs << "@ view 0.15, 0.15, 0.75, 0.85\n";
-    ofs << "@    legend on\n";
+    ofs << "@ legend on\n";
     ofs << "@ legend box on\n";
     ofs << "@ legend loctype view\n";
     ofs << "@ legend 0.78, 0.8\n";
